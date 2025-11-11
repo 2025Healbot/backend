@@ -1,7 +1,6 @@
 package com.hospital.boot.common.util;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CloudflareR2Service {
@@ -56,10 +54,8 @@ public class CloudflareR2Service {
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
 
             String fileUrl = publicUrl + "/" + key;
-            log.info("파일 업로드 성공: {}", fileUrl);
             return fileUrl;
         } catch (Exception e) {
-            log.error("파일 업로드 실패: {}", e.getMessage());
             throw new IOException("파일 업로드 중 오류가 발생했습니다.", e);
         }
     }
@@ -89,10 +85,8 @@ public class CloudflareR2Service {
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
 
             String fileUrl = publicUrl + "/" + key;
-            log.info("파일 업로드 성공: {}", fileUrl);
             return fileUrl;
         } catch (Exception e) {
-            log.error("파일 업로드 실패: {}", e.getMessage());
             throw new IOException("파일 업로드 중 오류가 발생했습니다.", e);
         }
     }
@@ -116,9 +110,8 @@ public class CloudflareR2Service {
                     .build();
 
             s3Client.deleteObject(deleteObjectRequest);
-            log.info("파일 삭제 성공: {}", key);
         } catch (Exception e) {
-            log.error("파일 삭제 실패: {}", e.getMessage());
+            // 삭제 실패 무시
         }
     }
 
@@ -148,10 +141,8 @@ public class CloudflareR2Service {
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, file.length()));
 
             String fileUrl = publicUrl + "/" + key;
-            log.info("파일 업로드 성공: {}", fileUrl);
             return fileUrl;
         } catch (Exception e) {
-            log.error("파일 업로드 실패: {}", e.getMessage());
             throw new IOException("파일 업로드 중 오류가 발생했습니다.", e);
         }
     }
@@ -193,7 +184,6 @@ public class CloudflareR2Service {
         } catch (NoSuchKeyException e) {
             return false;
         } catch (Exception e) {
-            log.error("파일 존재 확인 실패: {}", e.getMessage());
             return false;
         }
     }
