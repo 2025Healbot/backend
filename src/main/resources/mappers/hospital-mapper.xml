@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hospital.boot.domain.hospital.model.mapper.HospitalMapper">
+
+    <select id="findHospitalByDepartments" resultType="com.hospital.boot.domain.hospital.model.vo.Hospital">
+        SELECT DISTINCT
+            h.HOSPITAL_ID as hospitalId,
+            h.HOSPITAL_NAME as hospitalName,
+            h.ADDRESS as address,
+            h.HOSPITAL_GRADE as hospitalGrade,
+            h.HOSPITAL_TYPE as hospitalType,
+            h.DETAILS as details,
+            h.OPERATING_HOURS as operatingHours,
+            h.LUNCH_TIME as lunchTime,
+            h.EMERGENCY_YN as emergencyYn,
+            h.PHONE as phone,
+            h.LONGITUDE as longitude,
+            h.LATITUDE as latitude,
+            h.SIMPLE_MAP as simpleMap,
+            h.MAIN_IMAGE as mainImage,
+            h.WEBSITE_URL as websiteURL,
+            h.NEARBY_DISTRICTS as nearbyDistricts
+        FROM HOSPITALS h
+        JOIN HOSPITAL_DEPARTMENTS hd ON h.HOSPITAL_ID = hd.HOSPITAL_ID
+        WHERE hd.DEPARTMENT IN
+        <foreach collection="departments" item="dept" open="(" separator="," close=")">
+            #{dept}
+        </foreach>
+    </select>
+
+    <select id="findHospitalByDepartmentsAndDistrict" resultType="com.hospital.boot.domain.hospital.model.vo.Hospital">
+        SELECT DISTINCT
+            h.HOSPITAL_ID as hospitalId,
+            h.HOSPITAL_NAME as hospitalName,
+            h.ADDRESS as address,
+            h.HOSPITAL_GRADE as hospitalGrade,
+            h.HOSPITAL_TYPE as hospitalType,
+            h.DETAILS as details,
+            h.OPERATING_HOURS as operatingHours,
+            h.LUNCH_TIME as lunchTime,
+            h.EMERGENCY_YN as emergencyYn,
+            h.PHONE as phone,
+            h.LONGITUDE as longitude,
+            h.LATITUDE as latitude,
+            h.SIMPLE_MAP as simpleMap,
+            h.MAIN_IMAGE as mainImage,
+            h.WEBSITE_URL as websiteURL,
+            h.NEARBY_DISTRICTS as nearbyDistricts
+        FROM HOSPITALS h
+        JOIN HOSPITAL_DEPARTMENTS hd ON h.HOSPITAL_ID = hd.HOSPITAL_ID
+        WHERE hd.DEPARTMENT IN
+        <foreach collection="departments" item="dept" open="(" separator="," close=")">
+            #{dept}
+        </foreach>
+        AND h.NEARBY_DISTRICTS LIKE '%' || #{district} || '%'
+    </select>
+
+    <select id="findEmergencyHospital">
+        SELECT * FROM HOSPITALS WHERE EMERGENCY_YN = 'Y'
+    </select>
+
+    <select id="findAllHospitals" resultType="com.hospital.boot.domain.hospital.model.vo.Hospital">
+        SELECT
+            HOSPITAL_ID as hospitalId,
+            HOSPITAL_NAME as hospitalName,
+            ADDRESS as address,
+            HOSPITAL_GRADE as hospitalGrade,
+            HOSPITAL_TYPE as hospitalType,
+            DETAILS as details,
+            OPERATING_HOURS as operatingHours,
+            LUNCH_TIME as lunchTime,
+            EMERGENCY_YN as emergencyYn,
+            PHONE as phone,
+            LONGITUDE as longitude,
+            LATITUDE as latitude,
+            SIMPLE_MAP as simpleMap,
+            MAIN_IMAGE as mainImage,
+            WEBSITE_URL as websiteURL
+        FROM HOSPITALS
+    </select>
+
+    <update id="updateNearbyDistricts">
+        UPDATE HOSPITALS
+        SET NEARBY_DISTRICTS = #{nearbyDistricts}
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </update>
+
+</mapper>

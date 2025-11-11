@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hospital.boot.domain.diseases.model.mapper.DiseasesMapper">
+    <select id="findByName">
+        SELECT * FROM DISEASES
+        WHERE DISEASE_NAME = #{diseaseName}
+    </select>
+
+    <select id="allSymptoms" resultType="String">
+        SELECT DISTINCT SYMPTOM_NAME AS symptom
+        FROM DISEASE_SYMPTOM_MAPPINGS
+        ORDER BY symptom
+    </select>
+
+    <select id="findDiseasesBySymptoms" resultType="map">
+        WITH InputSymptoms AS (
+            <foreach collection="symptoms" item="symptom" separator=" UNION ALL ">
+                SELECT #{symptom} AS symptom_name FROM DUAL
+            </foreach>
+        ),
+        InputCount AS (
+            SELECT COUNT(*) AS total_input FROM InputSymptoms
+        ),
+        MatchedDiseases AS (
+            SELECT
+                dsm.DISEASE_NAME,
+                COUNT(DISTINCT dsm.SYMPTOM_NAME) AS matched_count
+            FROM DISEASE_SYMPTOM_MAPPINGS dsm
+                JOIN InputSymptoms inp
+                    ON dsm.SYMPTOM_NAME = inp.symptom_name
+            GROUP BY dsm.DISEASE_NAME
+        ),
+        AllSymptoms AS (
+            SELECT
+                DISEASE_NAME,
+                LISTAGG(DISTINCT SYMPTOM_NAME, ', ')
+                        WITHIN GROUP (ORDER BY SYMPTOM_NAME) AS all_symptoms
+            FROM DISEASE_SYMPTOM_MAPPINGS
+            GROUP BY DISEASE_NAME
+        )
+        SELECT
+            md.DISEASE_NAME AS "질환명",
+            LISTAGG(DISTINCT dd.DEPARTMENT_NAME, ', ')
+                    WITHIN GROUP (ORDER BY dd.DEPARTMENT_NAME) AS "진료과",
+            asym.all_symptoms AS "전체증상목록",
+            d.IMAGE_URL AS "이미지",
+            d.DESCRIPTION AS "설명",
+            d.TOTAL_PATIENTS AS "환자수"
+        FROM MatchedDiseases md
+                 CROSS JOIN InputCount ic
+                 JOIN DISEASES d ON md.DISEASE_NAME = d.DISEASE_NAME
+                 LEFT JOIN DISEASE_DEPARTMENTS dd ON d.DISEASE_NAME = dd.DISEASE_NAME
+                 LEFT JOIN AllSymptoms asym ON d.DISEASE_NAME = asym.DISEASE_NAME
+        WHERE md.matched_count >= CASE
+                                      WHEN ic.total_input >= 2 THEN 2
+                                      ELSE 1
+            END
+        GROUP BY md.DISEASE_NAME, md.matched_count, d.total_patients, d.IMAGE_URL, d.DESCRIPTION, asym.all_symptoms
+        ORDER BY
+            md.matched_count DESC,
+            d.total_patients DESC NULLS LAST
+            FETCH FIRST 10 ROWS ONLY
+    </select>
+</mapper>
