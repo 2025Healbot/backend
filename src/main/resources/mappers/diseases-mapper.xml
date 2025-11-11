@@ -35,14 +35,17 @@
         AllSymptoms AS (
             SELECT
                 DISEASE_NAME,
-                LISTAGG(DISTINCT SYMPTOM_NAME, ', ')
+                LISTAGG(SYMPTOM_NAME, ', ')
                         WITHIN GROUP (ORDER BY SYMPTOM_NAME) AS all_symptoms
-            FROM DISEASE_SYMPTOM_MAPPINGS
+            FROM (
+                SELECT DISTINCT DISEASE_NAME, SYMPTOM_NAME
+                FROM DISEASE_SYMPTOM_MAPPINGS
+            )
             GROUP BY DISEASE_NAME
         )
         SELECT
             md.DISEASE_NAME AS "질환명",
-            LISTAGG(DISTINCT dd.DEPARTMENT_NAME, ', ')
+            LISTAGG(dd.DEPARTMENT_NAME, ', ')
                     WITHIN GROUP (ORDER BY dd.DEPARTMENT_NAME) AS "진료과",
             asym.all_symptoms AS "전체증상목록",
             d.IMAGE_URL AS "이미지",
