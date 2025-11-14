@@ -143,4 +143,20 @@ public class MemberController {
         }
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpSession session) {
+        try {
+            // 세션 무효화
+            session.invalidate();
+
+            return ResponseEntity.ok(new java.util.HashMap<String, Boolean>() {{
+                put("success", true);
+            }});
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
