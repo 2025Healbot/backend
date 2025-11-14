@@ -49,7 +49,7 @@ public class DiseasesController {
     }
 
     @PostMapping("/search/ai")
-    public String searchByAi(@RequestBody Map<String, String> request) {
+    public ResponseEntity<List<String>> searchByAi(@RequestBody Map<String, String> request) {
         try {
             String message = request.get("message");
 
@@ -57,9 +57,9 @@ public class DiseasesController {
             String symptomsResponse = callGeminiApi(symptomPrompt);
             List<String> symptoms = parseSymptoms(symptomsResponse);
 
-            return dService.findDiseasesBySymptoms(symptoms);
+            return ResponseEntity.ok(symptoms);
         } catch (Exception e) {
-            return "{\"error\": \"" + e.getMessage() + "\"}";
+            return ResponseEntity.status(500).body(List.of());
         }
     }
 

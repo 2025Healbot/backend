@@ -2,7 +2,15 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hospital.boot.domain.member.model.mapper.SearchMapper">
+<mapper namespace="com.hospital.boot.domain.member.model.mapper.MemberMapper">
+    <select id="findBySocialId" resultType="com.hospital.boot.domain.member.model.vo.Member">
+        SELECT * FROM MEMBER WHERE SOCIAL_ID = #{socialId}
+    </select>
 
-
+    <insert id="insertMember">
+        INSERT INTO MEMBER VALUES (
+        #{memberId}, #{loginType}, #{socialId, jdbcType=VARCHAR}, #{password, jdbcType=VARCHAR},
+        #{userName}, #{email}, #{phone}, #{bornDate},
+        #{gender}, #{address}, DEFAULT, DEFAULT)
+    </insert>
 </mapper>

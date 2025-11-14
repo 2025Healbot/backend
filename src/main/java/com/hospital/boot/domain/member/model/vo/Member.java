@@ -10,5 +10,16 @@ import lombok.NoArgsConstructor;
 @ToString
 @NoArgsConstructor
 public class Member {
-
+    String memberId;
+    String loginType;
+    String socialId;
+    String password;
+    String userName;
+    String email;
+    String phone;
+    String bornDate;
+    String gender;
+    String address;
+    String createdDate;
+    String adminYn;
 }
