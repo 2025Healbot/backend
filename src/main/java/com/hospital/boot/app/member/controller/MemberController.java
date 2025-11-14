@@ -57,4 +57,90 @@ public class MemberController {
         return mService.signup(member);
     }
 
+    @GetMapping("/check-id")
+    public ResponseEntity<Boolean> checkId(@RequestParam String id) {
+        boolean available = mService.checkId(id);
+        return ResponseEntity.ok(available);
+    }
+
+    @GetMapping("/find-id")
+    public String findId(@RequestParam String name
+            ,@RequestParam String email) {
+        return mService.findId(name, email);
+    }
+
+    @PostMapping("/normal-login")
+    public ResponseEntity<LoginResponse> normalLogin(
+            @RequestParam String memberId,
+            @RequestParam String password,
+            HttpSession session) {
+
+        try {
+            Member member = mService.normalLogin(memberId, password);
+
+            LoginResponse response = new LoginResponse();
+
+            if (member != null) {
+                // 로그인 성공 - 세션에 회원 ID 저장
+                session.setAttribute("memberId", member.getMemberId());
+                response.setSuccess(1);
+            } else {
+                // 로그인 실패
+                response.setSuccess(0);
+            }
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/check-session")
+    public ResponseEntity<?> checkSession(HttpSession session) {
+        String memberId = (String) session.getAttribute("memberId");
+        boolean loggedIn = (memberId != null);
+
+        return ResponseEntity.ok(new java.util.HashMap<String, Boolean>() {{
+            put("loggedIn", loggedIn);
+        }});
+    }
+
+    @PostMapping("/verify-id-email")
+    public ResponseEntity<?> verifyIdAndEmail(
+            @RequestParam String memberId,
+            @RequestParam String email) {
+
+        try {
+            boolean verified = mService.verifyIdAndEmail(memberId, email);
+
+            return ResponseEntity.ok(new java.util.HashMap<String, Boolean>() {{
+                put("verified", verified);
+            }});
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestParam String memberId,
+            @RequestParam String password) {
+
+        try {
+            boolean success = mService.resetPassword(memberId, password);
+
+            return ResponseEntity.ok(new java.util.HashMap<String, Boolean>() {{
+                put("success", success);
+            }});
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

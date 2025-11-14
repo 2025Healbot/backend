@@ -13,4 +13,40 @@
         #{userName}, #{email}, #{phone}, #{bornDate},
         #{gender}, #{address}, DEFAULT, DEFAULT)
     </insert>
+
+    <select id="checkIdExists" resultType="int">
+        SELECT COUNT(*) FROM MEMBER WHERE MEMBER_ID = #{id}
+    </select>
+
+    <select id="findId" resultType="String">
+        SELECT
+            CASE
+                WHEN LOGIN_TYPE IN ('kakao', 'naver', 'google') THEN 'SOCIAL_LOGIN'
+                ELSE MEMBER_ID
+            END AS MEMBER_ID
+        FROM MEMBER
+        WHERE USER_NAME = #{name} AND EMAIL = #{email}
+    </select>
+
+    <select id="findByIdAndPassword" resultType="com.hospital.boot.domain.member.model.vo.Member">
+        SELECT * FROM MEMBER
+        WHERE MEMBER_ID = #{memberId} AND PASSWORD = #{password} AND LOGIN_TYPE = 'normal'
+    </select>
+
+    <select id="findByIdOnly" resultType="com.hospital.boot.domain.member.model.vo.Member">
+        SELECT * FROM MEMBER
+        WHERE MEMBER_ID = #{memberId} AND LOGIN_TYPE = 'normal'
+    </select>
+
+    <select id="findByIdAndEmail" resultType="com.hospital.boot.domain.member.model.vo.Member">
+        SELECT * FROM MEMBER
+        WHERE MEMBER_ID = #{memberId} AND EMAIL = #{email} AND LOGIN_TYPE = 'normal'
+    </select>
+
+    <update id="updatePassword">
+        UPDATE MEMBER
+        SET PASSWORD = #{password}
+        WHERE MEMBER_ID = #{memberId} AND LOGIN_TYPE = 'normal'
+    </update>
+
 </mapper>

@@ -5,6 +5,7 @@ import com.hospital.boot.domain.member.model.mapper.MemberMapper;
 import com.hospital.boot.domain.member.model.vo.Member;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberMapper mMapper;
+    private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${oauth.redirect-uri}")
@@ -159,7 +161,49 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public int signup(Member member) {
+        // 일반 로그인 회원인 경우 비밀번호 암호화
+        if ("normal".equals(member.getLoginType()) && member.getPassword() != null) {
+            member.setPassword(passwordEncoder.encode(member.getPassword()));
+        }
         return mMapper.insertMember(member);
+    }
+
+    @Override
+    public boolean checkId(String id) {
+        int count = mMapper.checkIdExists(id);
+        return count == 0; // 0이면 사용 가능(true), 1이상이면 사용 불가(false)
+    }
+
+    @Override
+    public String findId(String name, String email) {
+        return mMapper.findId(name, email);
+    }
+
+    @Override
+    public Member normalLogin(String memberId, String password) {
+        // 아이디로 회원 조회
+        Member member = mMapper.findByIdOnly(memberId);
+
+        // 회원이 존재하고 비밀번호가 일치하는지 확인
+        if (member != null && passwordEncoder.matches(password, member.getPassword())) {
+            return member;
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean verifyIdAndEmail(String memberId, String email) {
+        Member member = mMapper.findByIdAndEmail(memberId, email);
+        return member != null;
+    }
+
+    @Override
+    public boolean resetPassword(String memberId, String password) {
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(password);
+        int result = mMapper.updatePassword(memberId, encodedPassword);
+        return result > 0;
     }
 
 }
