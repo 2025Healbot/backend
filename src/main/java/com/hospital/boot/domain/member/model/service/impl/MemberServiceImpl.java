@@ -160,6 +160,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    public Member findByMemberId(String memberId) {
+        return mMapper.findByIdOnly(memberId);
+    }
+
+    @Override
     public int signup(Member member) {
         // 일반 로그인 회원인 경우 비밀번호 암호화
         if ("normal".equals(member.getLoginType()) && member.getPassword() != null) {

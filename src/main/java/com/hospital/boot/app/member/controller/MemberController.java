@@ -102,8 +102,19 @@ public class MemberController {
         String memberId = (String) session.getAttribute("memberId");
         boolean loggedIn = (memberId != null);
 
-        return ResponseEntity.ok(new java.util.HashMap<String, Boolean>() {{
+        String adminYn = "N"; // 기본값
+        if (loggedIn) {
+            // 로그인 되어있으면 DB에서 회원 정보 조회하여 admin_YN 가져오기
+            Member member = mService.findByMemberId(memberId);
+            if (member != null && member.getAdminYn() != null) {
+                adminYn = member.getAdminYn();
+            }
+        }
+
+        String finalAdminYn = adminYn;
+        return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
             put("loggedIn", loggedIn);
+            put("admin_YN", finalAdminYn);
         }});
     }
 
@@ -158,5 +169,4 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 }
