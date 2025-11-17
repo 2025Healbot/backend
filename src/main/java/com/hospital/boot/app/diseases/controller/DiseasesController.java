@@ -96,4 +96,21 @@ public class DiseasesController {
         return List.of(response.trim().split("\\s*,\\s*"));
     }
 
+    @GetMapping("/popular")
+    public ResponseEntity<Map<String, Object>> getPopularDiseases() {
+        try {
+            List<Map<String, Object>> popularDiseases = dService.findPopularDiseases();
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", popularDiseases
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "error", e.getMessage()
+            ));
+        }
+    }
+
 }

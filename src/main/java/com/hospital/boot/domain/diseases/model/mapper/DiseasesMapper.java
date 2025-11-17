@@ -15,4 +15,6 @@ public interface DiseasesMapper {
     List<String> allSymptoms();
 
     List<Map<String, Object>> findDiseasesBySymptoms(@Param("symptoms") List<String> symptoms);
+
+    List<Map<String, Object>> findPopularDiseases();
 }
