@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hospital.boot.domain.result.model.mapper.ResultMapper">
+
+    <!-- 증상 정보 조회 (정확 일치) -->
+    <select id="getSymptomInfo" resultType="String">
+        SELECT SYMPTOM_DETAIL
+        FROM SYMPTOM
+        WHERE SYMPTOM_NAME = #{keyword}
+    </select>
+
+    <!-- 병원 이름으로 검색 (LIKE, 이름순 정렬) -->
+    <select id="searchHospitalsByName" resultType="com.hospital.boot.domain.hospital.model.vo.Hospital">
+        SELECT
+            HOSPITAL_ID as hospitalId,
+            HOSPITAL_NAME as hospitalName,
+            ADDRESS as address,
+            HOSPITAL_GRADE as hospitalGrade,
+            HOSPITAL_TYPE as hospitalType,
+            DETAILS as details,
+            OPERATING_HOURS as operatingHours,
+            LUNCH_TIME as lunchTime,
+            EMERGENCY_YN as emergencyYn,
+            PHONE as phone,
+            LONGITUDE as longitude,
+            LATITUDE as latitude,
+            SIMPLE_MAP as simpleMap,
+            MAIN_IMAGE as mainImage,
+            WEBSITE_URL as websiteURL,
+            NEARBY_DISTRICTS as nearbyDistricts
+        FROM HOSPITALS
+        WHERE HOSPITAL_NAME LIKE '%' || #{keyword} || '%'
+        ORDER BY HOSPITAL_NAME
+    </select>
+
+    <!-- 질병 검색 (정확도순: 이름 일치 우선, 그 다음 설명 일치) -->
+    <select id="searchDiseasesByNameOrDescription" resultType="com.hospital.boot.domain.diseases.model.vo.Diseases">
+        SELECT
+            DISEASE_NO as diseaseNo,
+            DISEASE_NAME as diseaseName,
+            IMAGE_URL as imageUrl,
+            DESCRIPTION as description,
+            TOTAL_PATIENTS as totalPatients,
+            CASE
+                WHEN DISEASE_NAME LIKE '%' || #{keyword} || '%' THEN 1
+                ELSE 2
+            END as matchPriority
+        FROM DISEASES
+        WHERE DISEASE_NAME LIKE '%' || #{keyword} || '%'
+           OR DESCRIPTION LIKE '%' || #{keyword} || '%'
+        ORDER BY matchPriority, DISEASE_NAME
+    </select>
+
+</mapper>
