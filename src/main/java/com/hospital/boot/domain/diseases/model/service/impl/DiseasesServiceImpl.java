@@ -42,4 +42,9 @@ public class DiseasesServiceImpl implements DiseasesService {
             return "{\"error\": \"" + e.getMessage() + "\"}";
         }
     }
+
+    @Override
+    public List<Map<String, Object>> findPopularDiseases() {
+        return dMapper.findPopularDiseases();
+    }
 }
