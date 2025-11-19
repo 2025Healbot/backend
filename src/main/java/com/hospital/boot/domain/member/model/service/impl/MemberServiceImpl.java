@@ -1,6 +1,7 @@
 package com.hospital.boot.domain.member.model.service.impl;
 
 import com.hospital.boot.domain.member.model.service.MemberService;
+import com.hospital.boot.app.member.dto.ProfileUpdateRequest;
 import com.hospital.boot.domain.member.model.mapper.MemberMapper;
 import com.hospital.boot.domain.member.model.vo.Member;
 import org.springframework.beans.factory.annotation.Value;
@@ -210,5 +211,32 @@ public class MemberServiceImpl implements MemberService {
         int result = mMapper.updatePassword(memberId, encodedPassword);
         return result > 0;
     }
+    @Override
+    public Member findById(String memberId) {
+        // 이미 있는 메서드 재활용 (로그인 아이디 기준 조회)
+        return mMapper.findByIdOnly(memberId);
+    }
 
+    @Override
+    public void updateProfile(String memberId, ProfileUpdateRequest request) {
+
+        // 1) DB에서 기존 회원 정보 가져오기
+        Member member = mMapper.findByIdOnly(memberId);
+        if (member == null) {
+            throw new IllegalArgumentException("회원 정보를 찾을 수 없습니다.");
+        }
+
+        // 2) 값 수정
+        member.setUserName(request.getUserName());
+        member.setEmail(request.getEmail());
+        member.setPhone(request.getPhone());
+        member.setBornDate(request.getBornDate());
+        member.setGender(request.getGender());
+        member.setAddress(request.getAddress());
+
+        // 3) 업데이트 쿼리 호출	
+        mMapper.updateProfile(member);
+    }
+    
+    
 }

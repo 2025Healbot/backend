@@ -1,6 +1,9 @@
 package com.hospital.boot.app.member.controller;
 
+import com.hospital.boot.app.member.dto.CommonResponse;
 import com.hospital.boot.app.member.dto.LoginResponse;
+import com.hospital.boot.app.member.dto.ProfileResponse;
+import com.hospital.boot.app.member.dto.ProfileUpdateRequest;
 import com.hospital.boot.domain.member.model.service.MemberService;
 import com.hospital.boot.domain.member.model.vo.Member;
 import jakarta.servlet.http.HttpSession;
@@ -167,6 +170,67 @@ public class MemberController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(HttpSession session) {
+        // ✅ 로그인된 회원 PK를 세션에서 꺼냄 (위 로그인 로직과 동일한 key 사용)
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new CommonResponse(false, "로그인이 필요합니다."));
+        }
+
+        // MemberService 사용 시 이름은 mService
+        Member member = mService.findById(memberId);   // 이 메서드는 Service에 새로 추가 필요
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new CommonResponse(false, "회원 정보를 찾을 수 없습니다."));
+        }
+
+        ProfileResponse dto = new ProfileResponse();
+        dto.setUserName(member.getUserName());
+        dto.setEmail(member.getEmail());
+        dto.setPhone(member.getPhone());
+        dto.setBornDate(member.getBornDate()); // String/LocalDate 에 맞게 변환
+        dto.setGender(member.getGender());
+        dto.setAddress(member.getAddress());
+        
+        if (member.getCreatedAt() != null) {
+            dto.setJoinDate(member.getCreatedAt());   // String 이니까 toString() 안 해도 됨
+        }
+
+        // 프론트 Profile.jsx는 success 안 보고 바로 필드만 읽으니까
+        // 여기서는 순수 프로필 정보만 내려주면 됨
+        return ResponseEntity.ok(dto);
+    }
+
+    // ================= 프로필 수정 =================
+    @PutMapping("/profile")
+    public ResponseEntity<CommonResponse> updateProfile(
+            HttpSession session,
+            @RequestBody ProfileUpdateRequest request) {
+
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new CommonResponse(false, "로그인이 필요합니다."));
+        }
+
+        try {
+            // 이 부분도 Service에 구현 필요
+            mService.updateProfile(memberId, request);
+
+            // 프론트에서는 data.success === false 만 체크하니까 true면 OK
+            return ResponseEntity.ok(new CommonResponse(true, "프로필이 수정되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new CommonResponse(false, e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonResponse(false, "프로필 수정 중 오류가 발생했습니다."));
         }
     }
 }

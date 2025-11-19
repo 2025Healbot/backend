@@ -1,5 +1,6 @@
 package com.hospital.boot.domain.member.model.service;
 
+import com.hospital.boot.app.member.dto.ProfileUpdateRequest;
 import com.hospital.boot.domain.member.model.vo.Member;
 
 public interface MemberService {
@@ -12,4 +13,6 @@ public interface MemberService {
     Member normalLogin(String memberId, String password);
     boolean verifyIdAndEmail(String memberId, String email);
     boolean resetPassword(String memberId, String password);
+	void updateProfile(String memberId, ProfileUpdateRequest request);
+	Member findById(String memberId);
 }
