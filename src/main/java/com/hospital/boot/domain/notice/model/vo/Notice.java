@@ -10,5 +10,11 @@ import lombok.NoArgsConstructor;
 @ToString
 @NoArgsConstructor
 public class Notice {
-
+    private int noticeId;
+    private String title;
+    private String content;
+    private String category;
+    private int views;
+    private String createdAt;
+    private String updatedAt;
 }
