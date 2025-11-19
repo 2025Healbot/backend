@@ -48,5 +48,16 @@
         SET PASSWORD = #{password}
         WHERE MEMBER_ID = #{memberId} AND LOGIN_TYPE = 'normal'
     </update>
-
+    
+    <update id="updateProfile" parameterType="com.hospital.boot.domain.member.model.vo.Member">
+    UPDATE MEMBER
+    SET 
+        USER_NAME = #{userName},
+        EMAIL = #{email},
+        PHONE = #{phone},
+        BORN_DATE = #{bornDate},
+        GENDER = #{gender},
+        ADDRESS = #{address}
+    WHERE MEMBER_ID = #{memberId}
+	</update>
 </mapper>

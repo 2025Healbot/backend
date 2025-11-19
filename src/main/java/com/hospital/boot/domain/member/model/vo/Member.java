@@ -1,5 +1,7 @@
 package com.hospital.boot.domain.member.model.vo;
 
+import java.util.Date;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,16 +12,16 @@ import lombok.NoArgsConstructor;
 @ToString
 @NoArgsConstructor
 public class Member {
-    String memberId;
-    String loginType;
-    String socialId;
-    String password;
-    String userName;
-    String email;
-    String phone;
-    String bornDate;
-    String gender;
-    String address;
-    String createdDate;
-    String adminYn;
+	private String memberId;
+	private String loginType;
+	private String socialId;
+	private String password;
+	private String userName;
+	private String email;
+	private String phone;
+	private String bornDate;
+	private String gender;
+	private String address;
+	private Date createdAt;
+	private String adminYn;
 }

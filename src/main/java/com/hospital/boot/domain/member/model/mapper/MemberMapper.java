@@ -22,4 +22,6 @@ public interface MemberMapper {
     Member findByIdAndEmail(@Param("memberId") String memberId, @Param("email") String email);
 
     int updatePassword(@Param("memberId") String memberId, @Param("password") String password);
+
+	void updateProfile(Member member);
 }
