@@ -2,6 +2,8 @@ package com.hospital.boot.app.admin.controller;
 
 import com.hospital.boot.domain.admin.model.service.AdminService;
 import com.hospital.boot.domain.member.model.vo.Member;
+import com.hospital.boot.domain.notice.model.service.NoticeService;
+import com.hospital.boot.domain.notice.model.vo.Notice;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.Map;
 public class AdminController {
 
     private final AdminService aService;
+    private final NoticeService nService;
 
     /**
      * 전체 회원 목록 조회
@@ -41,6 +44,84 @@ public class AdminController {
         } else {
             response.put("success", false);
             response.put("message", "회원 삭제에 실패했습니다.");
+        }
+
+        return response;
+    }
+
+    /**
+     * 전체 공지사항 목록 조회
+     * @return 공지사항 목록
+     */
+    @GetMapping("/notices")
+    public List<Notice> getAllNotices() {
+        return nService.getAllNotices();
+    }
+
+    /**
+     * 공지사항 생성
+     * @param notice 공지사항 정보
+     * @return 생성 성공 여부
+     */
+    @PostMapping("/notices")
+    public Map<String, Object> createNotice(@RequestBody Notice notice) {
+        Map<String, Object> response = new HashMap<>();
+
+        System.out.print(notice);
+        int result = nService.createNotice(notice);
+
+        if (result > 0) {
+            response.put("success", true);
+            response.put("message", "공지사항이 등록되었습니다.");
+        } else {
+            response.put("success", false);
+            response.put("message", "공지사항 등록에 실패했습니다.");
+        }
+
+        return response;
+    }
+
+    /**
+     * 공지사항 수정
+     * @param noticeId 공지사항 ID
+     * @param notice 수정할 공지사항 정보
+     * @return 수정 성공 여부
+     */
+    @PutMapping("/notices/{noticeId}")
+    public Map<String, Object> updateNotice(@PathVariable int noticeId, @RequestBody Notice notice) {
+        Map<String, Object> response = new HashMap<>();
+
+        notice.setNoticeId(noticeId);
+        int result = nService.updateNotice(notice);
+
+        if (result > 0) {
+            response.put("success", true);
+            response.put("message", "공지사항이 수정되었습니다.");
+        } else {
+            response.put("success", false);
+            response.put("message", "공지사항 수정에 실패했습니다.");
+        }
+
+        return response;
+    }
+
+    /**
+     * 공지사항 삭제
+     * @param noticeId 삭제할 공지사항 ID
+     * @return 삭제 성공 여부
+     */
+    @DeleteMapping("/notices/{noticeId}")
+    public Map<String, Object> deleteNotice(@PathVariable int noticeId) {
+        Map<String, Object> response = new HashMap<>();
+
+        int result = nService.deleteNotice(noticeId);
+
+        if (result > 0) {
+            response.put("success", true);
+            response.put("message", "공지사항이 삭제되었습니다.");
+        } else {
+            response.put("success", false);
+            response.put("message", "공지사항 삭제에 실패했습니다.");
         }
 
         return response;
