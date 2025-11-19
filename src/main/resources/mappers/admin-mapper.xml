@@ -23,6 +23,17 @@
         ORDER BY CREATED_AT DESC
     </select>
 
+    <!-- 회원 수정 -->
+    <update id="updateMember" parameterType="Member">
+        UPDATE MEMBER
+        SET
+            USER_NAME = #{userName},
+            EMAIL = #{email},
+            PHONE = #{phone},
+            ADDRESS = #{address}
+        WHERE MEMBER_ID = #{memberId}
+    </update>
+
     <!-- 회원 삭제 -->
     <delete id="deleteMember" parameterType="string">
         DELETE FROM MEMBER

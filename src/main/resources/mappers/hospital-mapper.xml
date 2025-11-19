@@ -16,6 +16,7 @@
             h.LUNCH_TIME as lunchTime,
             h.EMERGENCY_YN as emergencyYn,
             h.PHONE as phone,
+            h.ER_PHONE as erPhone,
             h.LONGITUDE as longitude,
             h.LATITUDE as latitude,
             h.SIMPLE_MAP as simpleMap,
@@ -42,6 +43,7 @@
             h.LUNCH_TIME as lunchTime,
             h.EMERGENCY_YN as emergencyYn,
             h.PHONE as phone,
+            h.ER_PHONE as erPhone,
             h.LONGITUDE as longitude,
             h.LATITUDE as latitude,
             h.SIMPLE_MAP as simpleMap,
@@ -73,11 +75,13 @@
             LUNCH_TIME as lunchTime,
             EMERGENCY_YN as emergencyYn,
             PHONE as phone,
+            ER_PHONE as erPhone,
             LONGITUDE as longitude,
             LATITUDE as latitude,
             SIMPLE_MAP as simpleMap,
             MAIN_IMAGE as mainImage,
-            WEBSITE_URL as websiteURL
+            WEBSITE_URL as websiteURL,
+            NEARBY_DISTRICTS as nearbyDistricts
         FROM HOSPITALS
     </select>
 
@@ -86,5 +90,104 @@
         SET NEARBY_DISTRICTS = #{nearbyDistricts}
         WHERE HOSPITAL_ID = #{hospitalId}
     </update>
+
+    <!-- 관리자용 CRUD -->
+    <select id="getAllHospitals" resultType="com.hospital.boot.domain.hospital.model.vo.Hospital">
+        SELECT
+            HOSPITAL_ID as hospitalId,
+            HOSPITAL_NAME as hospitalName,
+            ADDRESS as address,
+            HOSPITAL_GRADE as hospitalGrade,
+            HOSPITAL_TYPE as hospitalType,
+            DETAILS as details,
+            OPERATING_HOURS as operatingHours,
+            LUNCH_TIME as lunchTime,
+            EMERGENCY_YN as emergencyYn,
+            PHONE as phone,
+            ER_PHONE as erPhone,
+            LONGITUDE as longitude,
+            LATITUDE as latitude,
+            SIMPLE_MAP as simpleMap,
+            MAIN_IMAGE as mainImage,
+            WEBSITE_URL as websiteURL,
+            NEARBY_DISTRICTS as nearbyDistricts
+        FROM HOSPITALS
+        ORDER BY HOSPITAL_NAME ASC
+    </select>
+
+    <insert id="insertHospital">
+        INSERT INTO HOSPITALS (
+            HOSPITAL_ID,
+            HOSPITAL_NAME,
+            ADDRESS,
+            HOSPITAL_GRADE,
+            HOSPITAL_TYPE,
+            DETAILS,
+            OPERATING_HOURS,
+            LUNCH_TIME,
+            EMERGENCY_YN,
+            PHONE,
+            ER_PHONE,
+            LONGITUDE,
+            LATITUDE,
+            SIMPLE_MAP,
+            MAIN_IMAGE,
+            WEBSITE_URL,
+            NEARBY_DISTRICTS
+        ) VALUES (
+            #{hospitalId},
+            #{hospitalName},
+            #{address},
+            #{hospitalGrade},
+            #{hospitalType},
+            #{details},
+            #{operatingHours},
+            #{lunchTime},
+            #{emergencyYn},
+            #{phone},
+            #{erPhone},
+            #{longitude},
+            #{latitude},
+            #{simpleMap},
+            #{mainImage},
+            #{websiteURL},
+            #{nearbyDistricts}
+        )
+    </insert>
+
+    <update id="updateHospital">
+        UPDATE HOSPITALS
+        SET
+            HOSPITAL_NAME = #{hospitalName},
+            ADDRESS = #{address},
+            HOSPITAL_GRADE = #{hospitalGrade},
+            HOSPITAL_TYPE = #{hospitalType},
+            DETAILS = #{details},
+            OPERATING_HOURS = #{operatingHours},
+            LUNCH_TIME = #{lunchTime},
+            EMERGENCY_YN = #{emergencyYn},
+            PHONE = #{phone},
+            ER_PHONE = #{erPhone},
+            LONGITUDE = #{longitude},
+            LATITUDE = #{latitude},
+            SIMPLE_MAP = #{simpleMap},
+            MAIN_IMAGE = #{mainImage},
+            WEBSITE_URL = #{websiteURL},
+            NEARBY_DISTRICTS = #{nearbyDistricts}
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </update>
+
+    <delete id="deleteHospital">
+        DELETE FROM HOSPITALS
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </delete>
+
+    <!-- 병원 진료과 목록 조회 -->
+    <select id="getDepartmentsByHospitalId" resultType="string">
+        SELECT DEPARTMENT
+        FROM HOSPITAL_DEPARTMENTS
+        WHERE HOSPITAL_ID = #{hospitalId}
+        ORDER BY DEPARTMENT
+    </select>
 
 </mapper>
