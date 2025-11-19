@@ -56,10 +56,7 @@
                  JOIN DISEASES d ON md.DISEASE_NAME = d.DISEASE_NAME
                  LEFT JOIN DISEASE_DEPARTMENTS dd ON d.DISEASE_NAME = dd.DISEASE_NAME
                  LEFT JOIN AllSymptoms asym ON d.DISEASE_NAME = asym.DISEASE_NAME
-        WHERE md.matched_count >= CASE
-                                      WHEN ic.total_input >= 2 THEN 2
-                                      ELSE 1
-            END
+        WHERE md.matched_count >= 1
         GROUP BY md.DISEASE_NAME, md.matched_count, d.total_patients, d.IMAGE_URL, d.DESCRIPTION, asym.all_symptoms
         ORDER BY
             md.matched_count DESC,
