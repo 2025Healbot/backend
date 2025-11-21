@@ -40,4 +40,15 @@ public class HospitalController {
         return hService.findEmergencyHospital();
     }
 
+    @GetMapping("bounds")
+    public List<Hospital> findHospitalsByBounds(
+            @RequestParam Double swLat,
+            @RequestParam Double swLng,
+            @RequestParam Double neLat,
+            @RequestParam Double neLng,
+            @RequestParam(required = false) Boolean emergencyOnly
+    ) {
+        return hService.findHospitalsByBounds(swLat, swLng, neLat, neLng, emergencyOnly);
+    }
+
 }

@@ -121,10 +121,12 @@ public class MemberController {
             String adminYn = "N"; // 기본값
             if (loggedIn) {
                 try {
-                    // 로그인 되어있으면 DB에서 회원 정보 조회하여 admin_YN 가져오기 (모든 로그인 타입)
+                    // 로그인 되어있으면 DB에서 회원 정보 조회하여 admin_YN 가져오기
                     Member member = mService.findByMemberIdAny(memberId);
-                    if (member != null && member.getAdminYn() != null) {
-                        adminYn = member.getAdminYn();
+                    if (member != null) {
+                        if (member.getAdminYn() != null) {
+                            adminYn = member.getAdminYn();
+                        }
                     }
                 } catch (Exception e) {
                     // DB 조회 실패 시 기본값 사용

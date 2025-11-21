@@ -143,6 +143,11 @@ public class HospitalServiceImpl implements HospitalService {
         return hMapper.findEmergencyHospital();
     }
 
+    @Override
+    public List<Hospital> findHospitalsByBounds(Double swLat, Double swLng, Double neLat, Double neLng, Boolean emergencyOnly) {
+        return hMapper.findHospitalsByBounds(swLat, swLng, neLat, neLng, emergencyOnly);
+    }
+
     // 관리자용 CRUD 구현
     @Override
     public List<Hospital> getAllHospitals() {

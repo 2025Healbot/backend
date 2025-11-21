@@ -13,6 +13,15 @@ public interface HospitalMapper {
 
     List<Hospital> findEmergencyHospital();
 
+    // 지도 영역 기반 병원 조회
+    List<Hospital> findHospitalsByBounds(
+        @Param("swLat") Double swLat,
+        @Param("swLng") Double swLng,
+        @Param("neLat") Double neLat,
+        @Param("neLng") Double neLng,
+        @Param("emergencyOnly") Boolean emergencyOnly
+    );
+
     // 관리자용 CRUD
     List<Hospital> getAllHospitals();
 
