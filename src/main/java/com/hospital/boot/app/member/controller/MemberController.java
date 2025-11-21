@@ -233,4 +233,31 @@ public class MemberController {
                     .body(new CommonResponse(false, "프로필 수정 중 오류가 발생했습니다."));
         }
     }
+    
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteAccount(HttpSession session) {
+
+        // 1. 세션에서 로그인 ID 확인
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new CommonResponse(false, "로그인이 필요합니다."));
+        }
+
+        // 2. 서비스 호출 (실제 DB 탈퇴 처리)
+        boolean deleted = mService.deleteMember(memberId);
+
+        if (!deleted) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonResponse(false, "탈퇴 처리에 실패했습니다."));
+        }
+
+        // 3. 세션 만료
+        session.invalidate();
+
+        // 4. 프론트 DeleteAccount.jsx 에서 data.success 확인하니까 이렇게 내려주면 됨
+        return ResponseEntity.ok(new CommonResponse(true, "회원 탈퇴가 완료되었습니다."));
+    }
 }
