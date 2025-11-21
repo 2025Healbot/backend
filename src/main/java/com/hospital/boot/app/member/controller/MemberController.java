@@ -6,7 +6,10 @@ import com.hospital.boot.app.member.dto.ProfileResponse;
 import com.hospital.boot.app.member.dto.ProfileUpdateRequest;
 import com.hospital.boot.domain.member.model.service.MemberService;
 import com.hospital.boot.domain.member.model.vo.Member;
+import com.hospital.boot.domain.accesslog.model.service.AccessLogService;
+import com.hospital.boot.domain.accesslog.model.vo.AccessLog;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +21,14 @@ import lombok.RequiredArgsConstructor;
 public class MemberController {
 
     private final MemberService mService;
+    private final AccessLogService alService;
 
     @GetMapping("/login")
     public ResponseEntity<LoginResponse> socialLogin(
             @RequestParam String type,
             @RequestParam String code,
-            HttpSession session) {
+            HttpSession session,
+            HttpServletRequest request) {
 
         try {
             // 1. 서비스에서 소셜 API 호출하여 소셜 사용자 ID 가져오기
@@ -42,6 +47,9 @@ public class MemberController {
                 // 로그인 성공 - 세션에 회원 ID 저장
                 session.setAttribute("memberId", member.getMemberId());
                 response.setSuccess(1);
+
+                // 접속 로그 저장
+                saveAccessLog(member.getMemberId(), request);
             } else {
                 // 회원가입 필요 - 소셜 ID만 반환
                 response.setSuccess(0);
@@ -76,7 +84,8 @@ public class MemberController {
     public ResponseEntity<LoginResponse> normalLogin(
             @RequestParam String memberId,
             @RequestParam String password,
-            HttpSession session) {
+            HttpSession session,
+            HttpServletRequest request) {
 
         try {
             Member member = mService.normalLogin(memberId, password);
@@ -87,6 +96,9 @@ public class MemberController {
                 // 로그인 성공 - 세션에 회원 ID 저장
                 session.setAttribute("memberId", member.getMemberId());
                 response.setSuccess(1);
+
+                // 접속 로그 저장
+                saveAccessLog(member.getMemberId(), request);
             } else {
                 // 로그인 실패
                 response.setSuccess(0);
@@ -102,23 +114,37 @@ public class MemberController {
 
     @GetMapping("/check-session")
     public ResponseEntity<?> checkSession(HttpSession session) {
-        String memberId = (String) session.getAttribute("memberId");
-        boolean loggedIn = (memberId != null);
+        try {
+            String memberId = (String) session.getAttribute("memberId");
+            boolean loggedIn = (memberId != null);
 
-        String adminYn = "N"; // 기본값
-        if (loggedIn) {
-            // 로그인 되어있으면 DB에서 회원 정보 조회하여 admin_YN 가져오기
-            Member member = mService.findByMemberId(memberId);
-            if (member != null && member.getAdminYn() != null) {
-                adminYn = member.getAdminYn();
+            String adminYn = "N"; // 기본값
+            if (loggedIn) {
+                try {
+                    // 로그인 되어있으면 DB에서 회원 정보 조회하여 admin_YN 가져오기 (모든 로그인 타입)
+                    Member member = mService.findByMemberIdAny(memberId);
+                    if (member != null && member.getAdminYn() != null) {
+                        adminYn = member.getAdminYn();
+                    }
+                } catch (Exception e) {
+                    // DB 조회 실패 시 기본값 사용
+                    e.printStackTrace();
+                }
             }
-        }
 
-        String finalAdminYn = adminYn;
-        return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
-            put("loggedIn", loggedIn);
-            put("admin_YN", finalAdminYn);
-        }});
+            String finalAdminYn = adminYn;
+            return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
+                put("loggedIn", loggedIn);
+                put("admin_YN", finalAdminYn);
+            }});
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 세션 확인 중 오류 발생 시 로그아웃 상태로 반환
+            return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
+                put("loggedIn", false);
+                put("admin_YN", "N");
+            }});
+        }
     }
 
     @PostMapping("/verify-id-email")
@@ -259,5 +285,38 @@ public class MemberController {
 
         // 4. 프론트 DeleteAccount.jsx 에서 data.success 확인하니까 이렇게 내려주면 됨
         return ResponseEntity.ok(new CommonResponse(true, "회원 탈퇴가 완료되었습니다."));
+    }
+
+    /**
+     * 접속 로그 저장 헬퍼 메서드
+     */
+    private void saveAccessLog(String memberId, HttpServletRequest request) {
+        try {
+            AccessLog accessLog = new AccessLog();
+            accessLog.setMemberId(memberId);
+            accessLog.setIpAddress(getClientIp(request));
+            accessLog.setUserAgent(request.getHeader("User-Agent"));
+            alService.saveAccessLog(accessLog);
+        } catch (Exception e) {
+            // 로그 저장 실패해도 로그인 프로세스는 정상 진행
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 클라이언트 IP 주소 추출
+     */
+    private String getClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
     }
 }

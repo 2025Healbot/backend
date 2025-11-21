@@ -38,6 +38,11 @@
         WHERE MEMBER_ID = #{memberId} AND LOGIN_TYPE = 'normal'
     </select>
 
+    <select id="findByIdAny" resultType="com.hospital.boot.domain.member.model.vo.Member">
+        SELECT * FROM MEMBER
+        WHERE MEMBER_ID = #{memberId}
+    </select>
+
     <select id="findByIdAndEmail" resultType="com.hospital.boot.domain.member.model.vo.Member">
         SELECT * FROM MEMBER
         WHERE MEMBER_ID = #{memberId} AND EMAIL = #{email} AND LOGIN_TYPE = 'normal'
