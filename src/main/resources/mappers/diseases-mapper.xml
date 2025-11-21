@@ -3,9 +3,31 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hospital.boot.domain.diseases.model.mapper.DiseasesMapper">
-    <select id="findByName">
-        SELECT * FROM DISEASES
-        WHERE DISEASE_NAME = #{diseaseName}
+    <select id="findByName" resultType="map">
+        WITH AllSymptoms AS (
+            SELECT
+                DISEASE_NAME,
+                LISTAGG(SYMPTOM_NAME, ', ')
+                    WITHIN GROUP (ORDER BY SYMPTOM_NAME) AS all_symptoms
+            FROM (
+                SELECT DISTINCT DISEASE_NAME, SYMPTOM_NAME
+                FROM DISEASE_SYMPTOM_MAPPINGS
+            )
+            GROUP BY DISEASE_NAME
+        )
+        SELECT
+            d.DISEASE_NAME AS "질환명",
+            LISTAGG(dd.DEPARTMENT_NAME, ', ')
+                WITHIN GROUP (ORDER BY dd.DEPARTMENT_NAME) AS "진료과",
+            asym.all_symptoms AS "전체증상목록",
+            d.IMAGE_URL AS "이미지",
+            d.DESCRIPTION AS "설명",
+            d.TOTAL_PATIENTS AS "환자수"
+        FROM DISEASES d
+            LEFT JOIN DISEASE_DEPARTMENTS dd ON d.DISEASE_NAME = dd.DISEASE_NAME
+            LEFT JOIN AllSymptoms asym ON d.DISEASE_NAME = asym.DISEASE_NAME
+        WHERE d.DISEASE_NAME = #{diseaseName}
+        GROUP BY d.DISEASE_NAME, d.TOTAL_PATIENTS, d.IMAGE_URL, d.DESCRIPTION, asym.all_symptoms
     </select>
 
     <select id="allSymptoms" resultType="String">

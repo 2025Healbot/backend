@@ -28,9 +28,18 @@ public class DiseasesController {
     private String geminiApiUrl;
 
     @GetMapping("")
-    public List<Diseases> detailsOfDisease (
+    public ResponseEntity<Map<String, Object>> detailsOfDisease (
             @RequestParam(value = "name") String name){
-        return dService.findByName(name);
+        try {
+            Map<String, Object> disease = dService.findByName(name);
+            if (disease != null) {
+                return ResponseEntity.ok(disease);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 
     @PostMapping("/search")

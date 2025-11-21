@@ -18,7 +18,7 @@ public class DiseasesServiceImpl implements DiseasesService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public List<Diseases> findByName(String diseaseName) {
+    public Map<String, Object> findByName(String diseaseName) {
         return dMapper.findByName(diseaseName);
     }
 
