@@ -10,7 +10,7 @@ import java.util.Map;
 @Mapper
 public interface DiseasesMapper {
 
-    List<Diseases> findByName(String diseaseName);
+    Map<String, Object> findByName(String diseaseName);
 
     List<String> allSymptoms();
 

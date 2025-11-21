@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface DiseasesService {
 
-    List<Diseases> findByName(String diseaseName);
+    Map<String, Object> findByName(String diseaseName);
 
     List<String> allSymptoms();
 
