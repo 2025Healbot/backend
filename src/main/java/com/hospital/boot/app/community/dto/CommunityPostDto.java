@@ -1,24 +1,21 @@
 package com.hospital.boot.app.community.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import java.util.Date;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class CommunityPostDto {
-	private Long postId;
+    private Long postId;
     private String memberId;
+    private String author;     // 화면에 표시할 작성자 이름(회원 이름)
     private String category;
     private String title;
     private String content;
-    private int views;
-    private String createdAt;
-    private String updatedAt;
-    private String status;
+    private Integer views;
+    private Date createdAt;
+    private Date updatedAt;
 }
