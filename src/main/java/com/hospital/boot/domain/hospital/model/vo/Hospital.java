@@ -20,6 +20,7 @@ public class Hospital {
     private String lunchTime;
     private String emergencyYn;
     private String phone;
+    private String erPhone;
     private String longitude;
     private String latitude;
     private String simpleMap;

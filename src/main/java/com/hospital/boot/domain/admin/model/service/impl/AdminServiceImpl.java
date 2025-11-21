@@ -19,6 +19,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public int updateMember(Member member) {
+        return aMapper.updateMember(member);
+    }
+
+    @Override
     public int deleteMember(String memberId) {
         return aMapper.deleteMember(memberId);
     }

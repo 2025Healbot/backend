@@ -142,4 +142,30 @@ public class HospitalServiceImpl implements HospitalService {
     public List<Hospital> findEmergencyHospital() {
         return hMapper.findEmergencyHospital();
     }
+
+    // 관리자용 CRUD 구현
+    @Override
+    public List<Hospital> getAllHospitals() {
+        return hMapper.getAllHospitals();
+    }
+
+    @Override
+    public void insertHospital(Hospital hospital) {
+        hMapper.insertHospital(hospital);
+    }
+
+    @Override
+    public void updateHospital(Hospital hospital) {
+        hMapper.updateHospital(hospital);
+    }
+
+    @Override
+    public void deleteHospital(String hospitalId) {
+        hMapper.deleteHospital(hospitalId);
+    }
+
+    @Override
+    public List<String> getDepartmentsByHospitalId(String hospitalId) {
+        return hMapper.getDepartmentsByHospitalId(hospitalId);
+    }
 }

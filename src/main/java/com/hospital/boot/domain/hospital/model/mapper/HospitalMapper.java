@@ -12,4 +12,16 @@ public interface HospitalMapper {
     List<Hospital> findHospitalByDepartments(@Param("departments") List<String> departments);
 
     List<Hospital> findEmergencyHospital();
+
+    // 관리자용 CRUD
+    List<Hospital> getAllHospitals();
+
+    void insertHospital(Hospital hospital);
+
+    void updateHospital(Hospital hospital);
+
+    void deleteHospital(@Param("hospitalId") String hospitalId);
+
+    // 병원 진료과 목록 조회
+    List<String> getDepartmentsByHospitalId(@Param("hospitalId") String hospitalId);
 }

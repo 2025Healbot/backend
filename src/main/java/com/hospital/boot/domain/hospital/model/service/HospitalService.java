@@ -13,4 +13,16 @@ public interface HospitalService {
     List<HospitalWithDistance> findHospitalByDepartmentsWithDistance(HospitalSearchRequest request);
 
     List<Hospital> findEmergencyHospital();
+
+    // 관리자용 CRUD
+    List<Hospital> getAllHospitals();
+
+    void insertHospital(Hospital hospital);
+
+    void updateHospital(Hospital hospital);
+
+    void deleteHospital(String hospitalId);
+
+    // 병원 진료과 목록 조회
+    List<String> getDepartmentsByHospitalId(String hospitalId);
 }
