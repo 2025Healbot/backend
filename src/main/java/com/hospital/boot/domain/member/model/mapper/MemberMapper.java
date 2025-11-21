@@ -19,6 +19,8 @@ public interface MemberMapper {
 
     Member findByIdOnly(String memberId);
 
+    Member findByIdAny(String memberId); // 모든 로그인 타입 조회
+
     Member findByIdAndEmail(@Param("memberId") String memberId, @Param("email") String email);
 
     int updatePassword(@Param("memberId") String memberId, @Param("password") String password);

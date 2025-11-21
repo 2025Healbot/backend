@@ -6,6 +6,7 @@ import com.hospital.boot.domain.notice.model.service.NoticeService;
 import com.hospital.boot.domain.notice.model.vo.Notice;
 import com.hospital.boot.domain.hospital.model.service.HospitalService;
 import com.hospital.boot.domain.hospital.model.vo.Hospital;
+import com.hospital.boot.domain.accesslog.model.service.AccessLogService;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
@@ -20,6 +21,7 @@ public class AdminController {
     private final AdminService aService;
     private final NoticeService nService;
     private final HospitalService hService;
+    private final AccessLogService alService;
 
     /**
      * 전체 회원 목록 조회
@@ -241,6 +243,15 @@ public class AdminController {
         System.out.println("진료과 개수: " + (departments != null ? departments.size() : 0));
         System.out.println("진료과 목록: " + departments);
         return departments;
+    }
+
+    /**
+     * 일별 로그인 횟수 조회 (최근 7일)
+     * @return 일별 로그인 횟수
+     */
+    @GetMapping("/stats/daily-login")
+    public List<Map<String, Object>> getDailyLoginCount() {
+        return alService.getDailyLoginCount();
     }
 
 }

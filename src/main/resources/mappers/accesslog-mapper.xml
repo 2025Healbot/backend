@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hospital.boot.domain.accesslog.model.mapper.AccessLogMapper">
+
+    <!-- 접속 로그 저장 -->
+    <insert id="insertAccessLog" parameterType="com.hospital.boot.domain.accesslog.model.vo.AccessLog">
+        <selectKey keyProperty="logId" resultType="int" order="BEFORE">
+            SELECT SEQ_ACCESS_LOG_ID.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO ACCESS_LOG (LOG_ID, MEMBER_ID, ACCESS_DATE, IP_ADDRESS, USER_AGENT)
+        VALUES (#{logId}, #{memberId}, SYSDATE, #{ipAddress}, #{userAgent})
+    </insert>
+
+    <!-- 일별 로그인 횟수 조회 (최근 7일) - 관리자 제외 -->
+    <select id="getDailyLoginCount" resultType="map">
+        SELECT
+            TO_CHAR(AL.ACCESS_DATE, 'MM/DD') AS "date",
+            COUNT(*) AS "count"
+        FROM ACCESS_LOG AL
+        INNER JOIN MEMBER M ON AL.MEMBER_ID = M.MEMBER_ID
+        WHERE AL.ACCESS_DATE >= TRUNC(SYSDATE) - 6
+          AND NVL(M.ADMIN_YN, 'N') = 'N'
+        GROUP BY TO_CHAR(AL.ACCESS_DATE, 'MM/DD'), TRUNC(AL.ACCESS_DATE)
+        ORDER BY TRUNC(AL.ACCESS_DATE)
+    </select>
+
+</mapper>
