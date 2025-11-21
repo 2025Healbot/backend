@@ -17,7 +17,7 @@
             BORN_DATE as bornDate,
             GENDER as gender,
             ADDRESS as address,
-            CREATED_AT as createdDate,
+            CREATED_AT as createdAt,
             ADMIN_YN as adminYn
         FROM MEMBER
         ORDER BY CREATED_AT DESC

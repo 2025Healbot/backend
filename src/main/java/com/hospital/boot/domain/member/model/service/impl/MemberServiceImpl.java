@@ -58,32 +58,51 @@ public class MemberServiceImpl implements MemberService {
      * 카카오 사용자 ID 가져오기
      */
     private String getKakaoUserId(String code) {
-        // 1. 액세스 토큰 받기
-        String tokenUrl = "https://kauth.kakao.com/oauth/token";
+        try {
+            // 1. 액세스 토큰 받기
+            String tokenUrl = "https://kauth.kakao.com/oauth/token";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", kakaoClientId);
-        params.add("redirect_uri", redirectUri);
-        params.add("code", code);
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("grant_type", "authorization_code");
+            params.add("client_id", kakaoClientId);
+            params.add("redirect_uri", redirectUri);
+            params.add("code", code);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenUrl, request, Map.class);
-        String accessToken = (String) tokenResponse.getBody().get("access_token");
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+            ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenUrl, request, Map.class);
 
-        // 2. 사용자 정보 가져오기
-        String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
+            if (tokenResponse.getBody() == null) {
+                throw new RuntimeException("Failed to get token response from Kakao");
+            }
 
-        HttpHeaders userHeaders = new HttpHeaders();
-        userHeaders.setBearerAuth(accessToken);
+            String accessToken = (String) tokenResponse.getBody().get("access_token");
 
-        HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
-        ResponseEntity<Map> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, Map.class);
+            if (accessToken == null) {
+                throw new RuntimeException("Failed to get access token from Kakao: " + tokenResponse.getBody());
+            }
 
-        return String.valueOf(userResponse.getBody().get("id"));
+            // 2. 사용자 정보 가져오기
+            String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
+
+            HttpHeaders userHeaders = new HttpHeaders();
+            userHeaders.setBearerAuth(accessToken);
+
+            HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
+            ResponseEntity<Map> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, Map.class);
+
+            if (userResponse.getBody() == null || userResponse.getBody().get("id") == null) {
+                throw new RuntimeException("Failed to get user info from Kakao");
+            }
+
+            return String.valueOf(userResponse.getBody().get("id"));
+        } catch (Exception e) {
+            System.err.println("Kakao login error: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Kakao login failed: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -114,11 +133,21 @@ public class MemberServiceImpl implements MemberService {
             HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
             ResponseEntity<Map> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, Map.class);
 
+            if (userResponse.getBody() == null || userResponse.getBody().get("response") == null) {
+                throw new RuntimeException("Failed to get user info from Naver");
+            }
+
             Map<String, Object> response = (Map<String, Object>) userResponse.getBody().get("response");
+
+            if (response == null || response.get("id") == null) {
+                throw new RuntimeException("Failed to get user id from Naver response");
+            }
+
             return (String) response.get("id");
         } catch (Exception e) {
+            System.err.println("Naver login error: " + e.getMessage());
             e.printStackTrace();
-            throw e;
+            throw new RuntimeException("Naver login failed: " + e.getMessage(), e);
         }
     }
 
@@ -126,33 +155,52 @@ public class MemberServiceImpl implements MemberService {
      * 구글 사용자 ID 가져오기
      */
     private String getGoogleUserId(String code) {
-        // 1. 액세스 토큰 받기
-        String tokenUrl = "https://oauth2.googleapis.com/token";
+        try {
+            // 1. 액세스 토큰 받기
+            String tokenUrl = "https://oauth2.googleapis.com/token";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", googleClientId);
-        params.add("client_secret", googleClientSecret);
-        params.add("redirect_uri", redirectUri);
-        params.add("code", code);
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("grant_type", "authorization_code");
+            params.add("client_id", googleClientId);
+            params.add("client_secret", googleClientSecret);
+            params.add("redirect_uri", redirectUri);
+            params.add("code", code);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenUrl, request, Map.class);
-        String accessToken = (String) tokenResponse.getBody().get("access_token");
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+            ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenUrl, request, Map.class);
 
-        // 2. 사용자 정보 가져오기
-        String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
+            if (tokenResponse.getBody() == null) {
+                throw new RuntimeException("Failed to get token response from Google");
+            }
 
-        HttpHeaders userHeaders = new HttpHeaders();
-        userHeaders.setBearerAuth(accessToken);
+            String accessToken = (String) tokenResponse.getBody().get("access_token");
 
-        HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
-        ResponseEntity<Map> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, Map.class);
+            if (accessToken == null) {
+                throw new RuntimeException("Failed to get access token from Google: " + tokenResponse.getBody());
+            }
 
-        return (String) userResponse.getBody().get("id");
+            // 2. 사용자 정보 가져오기
+            String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
+
+            HttpHeaders userHeaders = new HttpHeaders();
+            userHeaders.setBearerAuth(accessToken);
+
+            HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
+            ResponseEntity<Map> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, Map.class);
+
+            if (userResponse.getBody() == null || userResponse.getBody().get("id") == null) {
+                throw new RuntimeException("Failed to get user info from Google");
+            }
+
+            return (String) userResponse.getBody().get("id");
+        } catch (Exception e) {
+            System.err.println("Google login error: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Google login failed: " + e.getMessage(), e);
+        }
     }
 
     @Override
