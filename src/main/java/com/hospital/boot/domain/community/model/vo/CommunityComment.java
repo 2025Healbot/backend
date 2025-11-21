@@ -9,16 +9,11 @@ import lombok.NoArgsConstructor;
 @Setter
 @ToString
 @NoArgsConstructor
-public class Community {
-	private Long postId;
+public class CommunityComment {
+	private Long commentId;
+    private Long postId;
     private String memberId;
-    private String category;
-    private String title;
     private String content;
-    private int views;
     private String createdAt;
-    private String updatedAt;   // ✅ 추가
-    private String status;      // ✅ 추가 (ACTIVE / DELETED 등)
+    private String updatedAt; 
 }
-
-
