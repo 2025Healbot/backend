@@ -36,9 +36,7 @@ public class CommunityController {
     @GetMapping("/posts/{postId}")
     public ResponseEntity<CommunityPostDto> getPost(@PathVariable Long postId) {
         CommunityPostDto dto = cService.getPostDetail(postId);
-        if (dto == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (dto == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dto);
     }
 

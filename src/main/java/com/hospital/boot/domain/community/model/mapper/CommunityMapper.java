@@ -23,4 +23,5 @@ public interface CommunityMapper {
     List<CommunityCommentDto> selectCommentList(@Param("postId") Long postId);
 
     int insertComment(CommunityComment comment);
+    
 }

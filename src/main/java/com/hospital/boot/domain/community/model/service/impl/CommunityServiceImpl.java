@@ -53,4 +53,5 @@ public class CommunityServiceImpl implements CommunityService {
         cMapper.insertComment(c);
         return c.getCommentId();
     }
+    
 }

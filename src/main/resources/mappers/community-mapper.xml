@@ -81,5 +81,4 @@
         VALUES
             (#{commentId}, #{postId}, #{memberId}, #{content}, SYSDATE)
     </insert>
-
 </mapper>
