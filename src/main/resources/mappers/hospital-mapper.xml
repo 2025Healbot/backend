@@ -59,8 +59,55 @@
         AND h.NEARBY_DISTRICTS LIKE '%' || #{district} || '%'
     </select>
 
-    <select id="findEmergencyHospital">
-        SELECT * FROM HOSPITALS WHERE EMERGENCY_YN = 'Y'
+    <select id="findEmergencyHospital" resultType="com.hospital.boot.domain.hospital.model.vo.Hospital">
+        SELECT
+            HOSPITAL_ID as hospitalId,
+            HOSPITAL_NAME as hospitalName,
+            ADDRESS as address,
+            HOSPITAL_GRADE as hospitalGrade,
+            HOSPITAL_TYPE as hospitalType,
+            DETAILS as details,
+            OPERATING_HOURS as operatingHours,
+            LUNCH_TIME as lunchTime,
+            EMERGENCY_YN as emergencyYn,
+            PHONE as phone,
+            ER_PHONE as erPhone,
+            LONGITUDE as longitude,
+            LATITUDE as latitude,
+            SIMPLE_MAP as simpleMap,
+            MAIN_IMAGE as mainImage,
+            WEBSITE_URL as websiteURL,
+            NEARBY_DISTRICTS as nearbyDistricts
+        FROM HOSPITALS
+        WHERE EMERGENCY_YN = 'Y'
+    </select>
+
+    <!-- 지도 영역 기반 병원 조회 -->
+    <select id="findHospitalsByBounds" resultType="com.hospital.boot.domain.hospital.model.vo.Hospital">
+        SELECT
+            HOSPITAL_ID as hospitalId,
+            HOSPITAL_NAME as hospitalName,
+            ADDRESS as address,
+            HOSPITAL_GRADE as hospitalGrade,
+            HOSPITAL_TYPE as hospitalType,
+            DETAILS as details,
+            OPERATING_HOURS as operatingHours,
+            LUNCH_TIME as lunchTime,
+            EMERGENCY_YN as emergencyYn,
+            PHONE as phone,
+            ER_PHONE as erPhone,
+            LONGITUDE as longitude,
+            LATITUDE as latitude,
+            SIMPLE_MAP as simpleMap,
+            MAIN_IMAGE as mainImage,
+            WEBSITE_URL as websiteURL,
+            NEARBY_DISTRICTS as nearbyDistricts
+        FROM HOSPITALS
+        WHERE LATITUDE BETWEEN #{swLat} AND #{neLat}
+        AND LONGITUDE BETWEEN #{swLng} AND #{neLng}
+        <if test="emergencyOnly != null and emergencyOnly == true">
+            AND EMERGENCY_YN = 'Y'
+        </if>
     </select>
 
     <select id="findAllHospitals" resultType="com.hospital.boot.domain.hospital.model.vo.Hospital">

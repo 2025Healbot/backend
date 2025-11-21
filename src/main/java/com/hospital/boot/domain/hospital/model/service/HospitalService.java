@@ -14,6 +14,9 @@ public interface HospitalService {
 
     List<Hospital> findEmergencyHospital();
 
+    // 지도 영역 기반 병원 조회
+    List<Hospital> findHospitalsByBounds(Double swLat, Double swLng, Double neLat, Double neLng, Boolean emergencyOnly);
+
     // 관리자용 CRUD
     List<Hospital> getAllHospitals();
 
