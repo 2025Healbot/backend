@@ -1,15 +1,17 @@
-package com.hospital.boot.domain.community.model.vo;
+package com.hospital.boot.app.community.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
-public class Community {
+@AllArgsConstructor
+@Builder
+public class CommunityPostDto {
 	private Long postId;
     private String memberId;
     private String category;
@@ -17,8 +19,6 @@ public class Community {
     private String content;
     private int views;
     private String createdAt;
-    private String updatedAt;   // ✅ 추가
-    private String status;      // ✅ 추가 (ACTIVE / DELETED 등)
+    private String updatedAt;
+    private String status;
 }
-
-
