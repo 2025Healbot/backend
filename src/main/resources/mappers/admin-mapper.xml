@@ -6,20 +6,7 @@
 
     <!-- 전체 회원 조회 -->
     <select id="selectAllMembers" resultType="Member">
-        SELECT
-            MEMBER_ID as memberId,
-            LOGIN_TYPE as loginType,
-            SOCIAL_ID as socialId,
-            PASSWORD as password,
-            USER_NAME as userName,
-            EMAIL as email,
-            PHONE as phone,
-            BORN_DATE as bornDate,
-            GENDER as gender,
-            ADDRESS as address,
-            CREATED_AT as createdDate,
-            ADMIN_YN as adminYn
-        FROM MEMBER
+        SELECT *  FROM MEMBER
         ORDER BY CREATED_AT DESC
     </select>
 
