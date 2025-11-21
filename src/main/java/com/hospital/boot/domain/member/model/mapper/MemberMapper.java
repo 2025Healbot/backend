@@ -24,4 +24,6 @@ public interface MemberMapper {
     int updatePassword(@Param("memberId") String memberId, @Param("password") String password);
 
 	void updateProfile(Member member);
+
+	int deleteMember(@Param("memberId") String memberId);
 }

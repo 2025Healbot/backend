@@ -237,6 +237,12 @@ public class MemberServiceImpl implements MemberService {
         // 3) 업데이트 쿼리 호출	
         mMapper.updateProfile(member);
     }
+	@Override
+	public boolean deleteMember(String memberId) {
+		// TODO Auto-generated method stub
+		int result = mMapper.deleteMember(memberId);
+        return result > 0;
+	}
     
     
 }

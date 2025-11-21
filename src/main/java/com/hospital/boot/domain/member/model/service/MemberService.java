@@ -15,4 +15,5 @@ public interface MemberService {
     boolean resetPassword(String memberId, String password);
 	void updateProfile(String memberId, ProfileUpdateRequest request);
 	Member findById(String memberId);
+	boolean deleteMember(String memberId);
 }
