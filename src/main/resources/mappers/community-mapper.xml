@@ -2,125 +2,84 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hospital.boot.domain.community.model.mapper.SearchMapper">
-	<!-- 게시글 목록 -->
+<mapper namespace="com.hospital.boot.domain.community.model.mapper.CommunityMapper">
+
     <select id="selectPostList"
-            resultType="com.hospital.boot.domain.community.model.vo.Community">
+            resultType="com.hospital.boot.app.community.dto.CommunityPostDto">
         SELECT
-            POST_ID      AS postId,
-            MEMBER_ID    AS memberId,
-            CATEGORY     AS category,
-            TITLE        AS title,
-            CONTENT      AS content,
-            VIEWS        AS views,
-            TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI') AS createdAt,
-            TO_CHAR(NVL(UPDATED_AT, CREATED_AT), 'YYYY-MM-DD HH24:MI') AS updatedAt,
-            STATUS       AS status
-        FROM COMMUNITY_POST
-        WHERE (#{category} = 'all' OR CATEGORY = #{category})
-          AND (
-                #{keyword} IS NULL
-             OR #{keyword} = ''
-             OR TITLE   LIKE '%' || #{keyword} || '%'
-             OR CONTENT LIKE '%' || #{keyword} || '%'
-          )
-          AND STATUS = 'ACTIVE'
-        ORDER BY POST_ID DESC
+            p.POST_ID AS postId,
+            p.MEMBER_ID AS memberId,
+            m.USER_NAME AS author,
+            p.CATEGORY AS category,
+            p.TITLE AS title,
+            p.CONTENT AS content,
+            p.VIEWS AS views,
+            p.CREATED_AT AS createdAt
+        FROM COMMUNITY_POST p
+        JOIN MEMBER m ON p.MEMBER_ID = m.MEMBER_ID
+        WHERE p.STATUS = 'ACTIVE'
+        <if test="category != 'all'">
+            AND p.CATEGORY = #{category}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (LOWER(p.TITLE) LIKE '%' || LOWER(#{keyword}) || '%')
+        </if>
+        ORDER BY p.POST_ID DESC
     </select>
 
-    <!-- 게시글 상세 -->
     <select id="selectPostDetail"
-            resultType="com.hospital.boot.domain.community.model.vo.Community">
+            parameterType="long"
+            resultType="com.hospital.boot.app.community.dto.CommunityPostDto">
         SELECT
-            POST_ID      AS postId,
-            MEMBER_ID    AS memberId,
-            CATEGORY     AS category,
-            TITLE        AS title,
-            CONTENT      AS content,
-            VIEWS        AS views,
-            TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI') AS createdAt,
-            TO_CHAR(NVL(UPDATED_AT, CREATED_AT), 'YYYY-MM-DD HH24:MI') AS updatedAt,
-            STATUS       AS status
-        FROM COMMUNITY_POST
-        WHERE POST_ID = #{postId}
-          AND STATUS = 'ACTIVE'
+            p.POST_ID AS postId,
+            p.MEMBER_ID AS memberId,
+            m.USER_NAME AS author,
+            p.CATEGORY AS category,
+            p.TITLE AS title,
+            p.CONTENT AS content,
+            p.VIEWS AS views,
+            p.CREATED_AT AS createdAt
+        FROM COMMUNITY_POST p
+        JOIN MEMBER m ON p.MEMBER_ID = m.MEMBER_ID
+        WHERE p.POST_ID = #{postId}
     </select>
 
-    <!-- 조회수 증가 -->
-    <update id="increaseViewCount">
-        UPDATE COMMUNITY_POST
-        SET VIEWS = VIEWS + 1
-        WHERE POST_ID = #{postId}
-    </update>
-
-    <!-- 게시글 작성 -->
     <insert id="insertPost"
             parameterType="com.hospital.boot.domain.community.model.vo.Community">
         <selectKey keyProperty="postId" resultType="long" order="BEFORE">
             SELECT SEQ_COMMUNITY_POST.NEXTVAL FROM DUAL
         </selectKey>
-
         INSERT INTO COMMUNITY_POST
-        (
-            POST_ID,
-            MEMBER_ID,
-            CATEGORY,
-            TITLE,
-            CONTENT,
-            VIEWS,
-            CREATED_AT,
-            STATUS
-        )
+        (POST_ID, MEMBER_ID, CATEGORY, TITLE, CONTENT, VIEWS, STATUS, CREATED_AT)
         VALUES
-        (
-            #{postId},
-            #{memberId},
-            #{category},
-            #{title},
-            #{content},
-            0,
-            SYSDATE,
-            'ACTIVE'
-        )
+        (#{postId}, #{memberId}, #{category}, #{title}, #{content}, 0, 'ACTIVE', SYSDATE)
     </insert>
 
-    <!-- 댓글 목록 -->
-    <select id="selectComments"
-            resultType="com.hospital.boot.domain.community.model.vo.CommunityComment">
+    <select id="selectCommentList"
+            parameterType="long"
+            resultType="com.hospital.boot.app.community.dto.CommunityCommentDto">
         SELECT
-            COMMENT_ID   AS commentId,
-            POST_ID      AS postId,
-            MEMBER_ID    AS memberId,
-            CONTENT      AS content,
-            TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI') AS createdAt,
-            TO_CHAR(NVL(UPDATED_AT, CREATED_AT), 'YYYY-MM-DD HH24:MI') AS updatedAt
-        FROM COMMUNITY_COMMENT
-        WHERE POST_ID = #{postId}
-        ORDER BY COMMENT_ID DESC
+            c.COMMENT_ID AS commentId,
+            c.POST_ID AS postId,
+            c.MEMBER_ID AS memberId,
+            m.USER_NAME AS author,
+            c.CONTENT AS content,
+            c.CREATED_AT AS createdAt
+        FROM COMMUNITY_COMMENT c
+        JOIN MEMBER m ON c.MEMBER_ID = m.MEMBER_ID
+        WHERE c.POST_ID = #{postId}
+        ORDER BY c.COMMENT_ID DESC
     </select>
 
-    <!-- 댓글 작성 -->
     <insert id="insertComment"
             parameterType="com.hospital.boot.domain.community.model.vo.CommunityComment">
         <selectKey keyProperty="commentId" resultType="long" order="BEFORE">
             SELECT SEQ_COMMUNITY_COMMENT.NEXTVAL FROM DUAL
         </selectKey>
-
         INSERT INTO COMMUNITY_COMMENT
-        (
-            COMMENT_ID,
-            POST_ID,
-            MEMBER_ID,
-            CONTENT,
-            CREATED_AT
-        )
+            (COMMENT_ID, POST_ID, MEMBER_ID, CONTENT, CREATED_AT)
         VALUES
-        (
-            #{commentId},
-            #{postId},
-            #{memberId},
-            #{content},
-            SYSDATE
-        )
+            (#{commentId}, #{postId}, #{memberId}, #{content}, SYSDATE)
     </insert>
+
 </mapper>
