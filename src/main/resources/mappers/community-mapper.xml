@@ -26,6 +26,12 @@
         </if>
         ORDER BY p.POST_ID DESC
     </select>
+    
+    <update id="increaseViews">
+	    UPDATE COMMUNITY_POST
+	    SET VIEWS = VIEWS + 1
+	    WHERE POST_ID = #{postId}
+	</update>
 
     <select id="selectPostDetail"
             parameterType="long"
@@ -83,12 +89,12 @@
     </insert>
     
     <delete id="deletePost">
-	    DELETE FROM COMMUNITY_POST
-	    WHERE POST_ID = #{postId}
-	      AND MEMBER_ID = #{memberId}
-	</delete>
-	
-	<select id="countPostsByMember" resultType="int">
+       DELETE FROM COMMUNITY_POST
+       WHERE POST_ID = #{postId}
+         AND MEMBER_ID = #{memberId}
+   </delete>
+   
+   <select id="countPostsByMember" resultType="int">
         SELECT COUNT(*)
         FROM COMMUNITY_POST
         WHERE MEMBER_ID = #{memberId}

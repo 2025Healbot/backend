@@ -19,5 +19,7 @@ public interface CommunityService {
 	boolean deletePost(Long postId, String memberId);
 
 	int getMyPostCount(String memberId);
+
+	CommunityPostDto viewPost(Long postId);
     
 }

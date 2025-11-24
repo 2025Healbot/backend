@@ -33,11 +33,11 @@ public class CommunityController {
     }
 
     // =======================
-    // 📌 게시글 상세
+    // 📌 게시글 상세 + 조회수
     // =======================
     @GetMapping("/posts/{postId}")
     public ResponseEntity<CommunityPostDto> getPost(@PathVariable Long postId) {
-        CommunityPostDto dto = cService.getPostDetail(postId);
+        CommunityPostDto dto = cService.viewPost(postId);
         if (dto == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dto);
     }
