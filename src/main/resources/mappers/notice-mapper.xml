@@ -11,7 +11,7 @@
             NOTICE_SUBJECT as title,
             NOTICE_CONTENT as content,
             CATEGORY as category,
-            VIEW_COUNT as views,
+            VIEW_COUNT as viewCount,
             TO_CHAR(WRITE_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') as createdAt,
             TO_CHAR(WRITE_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') as updatedAt
         FROM NOTICE
