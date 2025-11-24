@@ -48,8 +48,10 @@ public class MemberController {
                 session.setAttribute("memberId", member.getMemberId());
                 response.setSuccess(1);
 
-                // 접속 로그 저장
-                saveAccessLog(member.getMemberId(), request);
+                // 접속 로그 저장 (관리자가 아닌 경우만)
+                if (!"Y".equals(member.getAdminYn())) {
+                    saveAccessLog(member.getMemberId(), request);
+                }
             } else {
                 // 회원가입 필요 - 소셜 ID만 반환
                 response.setSuccess(0);
@@ -97,8 +99,10 @@ public class MemberController {
                 session.setAttribute("memberId", member.getMemberId());
                 response.setSuccess(1);
 
-                // 접속 로그 저장
-                saveAccessLog(member.getMemberId(), request);
+                // 접속 로그 저장 (관리자가 아닌 경우만)
+                if (!"Y".equals(member.getAdminYn())) {
+                    saveAccessLog(member.getMemberId(), request);
+                }
             } else {
                 // 로그인 실패
                 response.setSuccess(0);
