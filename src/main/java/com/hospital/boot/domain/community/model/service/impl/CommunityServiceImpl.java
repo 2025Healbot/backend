@@ -53,5 +53,17 @@ public class CommunityServiceImpl implements CommunityService {
         cMapper.insertComment(c);
         return c.getCommentId();
     }
+
+	@Override
+	public boolean deletePost(Long postId, String memberId) {
+		int affected = cMapper.deletePost(postId, memberId);
+		return affected > 0;
+	}
+
+	@Override
+	public int getMyPostCount(String memberId) {
+		// TODO Auto-generated method stub
+		return cMapper.countPostsByMember(memberId);
+	}
     
 }

@@ -15,5 +15,9 @@ public interface CommunityService {
     List<CommunityCommentDto> getComments(Long postId);
 
     Long writeComment(String memberId, Long postId, CommunityCommentWriteRequest req);
+
+	boolean deletePost(Long postId, String memberId);
+
+	int getMyPostCount(String memberId);
     
 }
