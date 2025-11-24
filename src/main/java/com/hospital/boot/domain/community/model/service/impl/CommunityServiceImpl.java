@@ -65,5 +65,14 @@ public class CommunityServiceImpl implements CommunityService {
 		// TODO Auto-generated method stub
 		return cMapper.countPostsByMember(memberId);
 	}
+
+	@Override
+	public CommunityPostDto viewPost(Long postId) {
+		// TODO Auto-generated method stub
+		// 1) 조회수 +1
+        cMapper.increaseViews(postId);
+        // 2) 방금 변경된 게시글 다시 조회해서 리턴
+        return cMapper.selectPostDetail(postId);
+	}
     
 }

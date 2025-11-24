@@ -29,4 +29,6 @@ public interface CommunityMapper {
             @Param("memberId") String memberId);
     
     int countPostsByMember(String memberId);
+    
+    int increaseViews(Long postId);
 }
