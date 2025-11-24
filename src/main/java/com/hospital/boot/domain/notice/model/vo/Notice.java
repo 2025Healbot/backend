@@ -14,7 +14,9 @@ public class Notice {
     private String title;
     private String content;
     private String category;
-    private int views;
+    private int viewCount;
     private String createdAt;
     private String updatedAt;
+    private String attachmentName;
+    private String attachmentPath;
 }
