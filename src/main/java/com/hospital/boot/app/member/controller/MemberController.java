@@ -135,9 +135,12 @@ public class MemberController {
             }
 
             String finalAdminYn = adminYn;
+            String finalMemberId = memberId;
+            
             return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
                 put("loggedIn", loggedIn);
                 put("admin_YN", finalAdminYn);
+                put("memberId", finalMemberId);
             }});
         } catch (Exception e) {
             e.printStackTrace();
@@ -145,6 +148,7 @@ public class MemberController {
             return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
                 put("loggedIn", false);
                 put("admin_YN", "N");
+                put("memberId", null);
             }});
         }
     }

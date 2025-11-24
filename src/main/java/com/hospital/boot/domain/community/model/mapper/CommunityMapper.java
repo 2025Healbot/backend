@@ -23,4 +23,10 @@ public interface CommunityMapper {
     List<CommunityCommentDto> selectCommentList(@Param("postId") Long postId);
 
     int insertComment(CommunityComment comment);
+
+    int deletePost(
+            @Param("postId") Long postId,
+            @Param("memberId") String memberId);
+    
+    int countPostsByMember(String memberId);
 }

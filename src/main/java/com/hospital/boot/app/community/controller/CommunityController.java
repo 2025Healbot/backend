@@ -1,10 +1,12 @@
 package com.hospital.boot.app.community.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,9 +38,7 @@ public class CommunityController {
     @GetMapping("/posts/{postId}")
     public ResponseEntity<CommunityPostDto> getPost(@PathVariable Long postId) {
         CommunityPostDto dto = cService.getPostDetail(postId);
-        if (dto == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (dto == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dto);
     }
 
@@ -83,5 +83,45 @@ public class CommunityController {
 
         Long id = cService.writeComment(memberId, postId, req);
         return ResponseEntity.ok(id);
+    }
+    // ========================
+    // 게시물 삭제
+    // ========================
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<?> deletePost(@PathVariable Long postId, HttpSession session) {
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        boolean deleted = cService.deletePost(postId, memberId);
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("success", false, "message", "본인이 작성한 글만 삭제할 수 있습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+    
+    // 🔹 내가 쓴 게시글 개수
+    @GetMapping("/my-post-count")
+    public ResponseEntity<?> getMyPostCount(HttpSession session) {
+
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(401)
+                    .body(java.util.Map.of(
+                            "success", false,
+                            "message", "로그인이 필요합니다."
+                    ));
+        }
+
+        int count = cService.getMyPostCount(memberId);
+
+        return ResponseEntity.ok(java.util.Map.of(
+                "success", true,
+                "count", count
+        ));
     }
 }
