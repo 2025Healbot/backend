@@ -23,7 +23,7 @@
     <select id="findId" resultType="String">
         SELECT
             CASE
-                WHEN LOGIN_TYPE IN ('kakao', 'naver', 'google') THEN 'SOCIAL_LOGIN'
+                WHEN LOGIN_TYPE IN ('kakao', 'naver') THEN 'SOCIAL_LOGIN'
                 ELSE MEMBER_ID
             END AS MEMBER_ID
         FROM MEMBER

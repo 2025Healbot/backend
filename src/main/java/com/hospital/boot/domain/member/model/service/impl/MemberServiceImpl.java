@@ -35,12 +35,6 @@ public class MemberServiceImpl implements MemberService {
     @Value("${oauth.naver.client-secret}")
     private String naverClientSecret;
 
-    @Value("${oauth.google.client-id}")
-    private String googleClientId;
-
-    @Value("${oauth.google.client-secret}")
-    private String googleClientSecret;
-
     @Override
     public String getSocialUserId(String type, String code) {
         switch (type.toLowerCase()) {
@@ -48,8 +42,6 @@ public class MemberServiceImpl implements MemberService {
                 return getKakaoUserId(code);
             case "naver":
                 return getNaverUserId(code);
-            case "google":
-                return getGoogleUserId(code);
             default:
                 throw new IllegalArgumentException("지원하지 않는 소셜 로그인 타입입니다: " + type);
         }
@@ -151,57 +143,6 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    /**
-     * 구글 사용자 ID 가져오기
-     */
-    private String getGoogleUserId(String code) {
-        try {
-            // 1. 액세스 토큰 받기
-            String tokenUrl = "https://oauth2.googleapis.com/token";
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("grant_type", "authorization_code");
-            params.add("client_id", googleClientId);
-            params.add("client_secret", googleClientSecret);
-            params.add("redirect_uri", redirectUri);
-            params.add("code", code);
-
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-            ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenUrl, request, Map.class);
-
-            if (tokenResponse.getBody() == null) {
-                throw new RuntimeException("Failed to get token response from Google");
-            }
-
-            String accessToken = (String) tokenResponse.getBody().get("access_token");
-
-            if (accessToken == null) {
-                throw new RuntimeException("Failed to get access token from Google: " + tokenResponse.getBody());
-            }
-
-            // 2. 사용자 정보 가져오기
-            String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
-
-            HttpHeaders userHeaders = new HttpHeaders();
-            userHeaders.setBearerAuth(accessToken);
-
-            HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
-            ResponseEntity<Map> userResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, userRequest, Map.class);
-
-            if (userResponse.getBody() == null || userResponse.getBody().get("id") == null) {
-                throw new RuntimeException("Failed to get user info from Google");
-            }
-
-            return (String) userResponse.getBody().get("id");
-        } catch (Exception e) {
-            System.err.println("Google login error: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Google login failed: " + e.getMessage(), e);
-        }
-    }
 
     @Override
     public Member findBySocialId(String socialId) {
