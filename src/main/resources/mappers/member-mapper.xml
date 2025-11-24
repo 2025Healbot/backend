@@ -8,7 +8,9 @@
     </select>
 
     <insert id="insertMember">
-        INSERT INTO MEMBER VALUES (
+        INSERT INTO MEMBER (
+        MEMBER_ID, LOGIN_TYPE, SOCIAL_ID, PASSWORD, USER_NAME, EMAIL,
+        PHONE, BORN_DATE, GENDER, ADDRESS, CREATED_AT,ADMIN_YN) VALUES (
         #{memberId}, #{loginType}, #{socialId, jdbcType=VARCHAR}, #{password, jdbcType=VARCHAR},
         #{userName}, #{email}, #{phone}, #{bornDate},
         #{gender}, #{address}, DEFAULT, DEFAULT)
