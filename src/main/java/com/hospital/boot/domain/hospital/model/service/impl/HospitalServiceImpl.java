@@ -54,4 +54,14 @@ public class HospitalServiceImpl implements HospitalService {
     public List<String> getDepartmentsByHospitalId(String hospitalId) {
         return hMapper.getDepartmentsByHospitalId(hospitalId);
     }
+
+    @Override
+    public List<Hospital> findAllHospitals() {
+        return hMapper.getAllHospitals();
+    }
+
+    @Override
+    public List<Hospital> findByDepartments(List<String> departments) {
+        return hMapper.findHospitalByDepartments(departments);
+    }
 }

@@ -24,4 +24,8 @@ public interface HospitalService {
 
     // 병원 진료과 목록 조회
     List<String> getDepartmentsByHospitalId(String hospitalId);
+
+    List<Hospital> findAllHospitals();
+
+    List<Hospital> findByDepartments(List<String> departments);
 }
