@@ -74,5 +74,23 @@ public class CommunityServiceImpl implements CommunityService {
         // 2) 방금 변경된 게시글 다시 조회해서 리턴
         return cMapper.selectPostDetail(postId);
 	}
-    
+
+	@Override
+	public boolean updatePost(Long postId, CommunityPostWriteRequest req) {
+		Community post = new Community();
+		post.setPostId(postId);
+		post.setTitle(req.getTitle());
+		post.setContent(req.getContent());
+		post.setCategory(req.getCategory());
+
+		int affected = cMapper.updatePost(post);
+		return affected > 0;
+	}
+
+	@Override
+	public boolean adminDeletePost(Long postId) {
+		int affected = cMapper.adminDeletePost(postId);
+		return affected > 0;
+	}
+
 }

@@ -21,5 +21,9 @@ public interface CommunityService {
 	int getMyPostCount(String memberId);
 
 	CommunityPostDto viewPost(Long postId);
-    
+
+	boolean updatePost(Long postId, CommunityPostWriteRequest req);
+
+	boolean adminDeletePost(Long postId);
+
 }

@@ -36,8 +36,19 @@ public class CommunityController {
     // 📌 게시글 상세 + 조회수
     // =======================
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<CommunityPostDto> getPost(@PathVariable Long postId) {
-        CommunityPostDto dto = cService.viewPost(postId);
+    public ResponseEntity<CommunityPostDto> getPost(
+            @PathVariable Long postId,
+            @RequestParam(name = "admin", defaultValue = "false") boolean isAdmin) {
+
+        CommunityPostDto dto;
+        if (isAdmin) {
+            // 관리자 조회 시 조회수 증가 안 함
+            dto = cService.getPostDetail(postId);
+        } else {
+            // 일반 사용자 조회 시 조회수 증가
+            dto = cService.viewPost(postId);
+        }
+
         if (dto == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dto);
     }
@@ -85,17 +96,68 @@ public class CommunityController {
         return ResponseEntity.ok(id);
     }
     // ========================
-    // 게시물 삭제
+    // 게시물 수정
     // ========================
-    @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<?> deletePost(@PathVariable Long postId, HttpSession session) {
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<?> updatePost(
+            @PathVariable Long postId,
+            @RequestBody CommunityPostWriteRequest req,
+            @RequestParam(name = "admin", defaultValue = "false") boolean isAdmin,
+            HttpSession session) {
+
         String memberId = (String) session.getAttribute("memberId");
         if (memberId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("success", false, "message", "로그인이 필요합니다."));
         }
 
-        boolean deleted = cService.deletePost(postId, memberId);
+        // 관리자는 권한 체크 없이 수정 가능
+        if (!isAdmin) {
+            // 일반 사용자는 본인 글만 수정 가능
+            CommunityPostDto post = cService.getPostDetail(postId);
+            if (post == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("success", false, "message", "게시글을 찾을 수 없습니다."));
+            }
+            if (!post.getMemberId().equals(memberId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("success", false, "message", "본인이 작성한 글만 수정할 수 있습니다."));
+            }
+        }
+
+        boolean updated = cService.updatePost(postId, req);
+        if (!updated) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "게시글 수정에 실패했습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    // ========================
+    // 게시물 삭제
+    // ========================
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<?> deletePost(
+            @PathVariable Long postId,
+            @RequestParam(name = "admin", defaultValue = "false") boolean isAdmin,
+            HttpSession session) {
+
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        boolean deleted;
+        if (isAdmin) {
+            // 관리자는 모든 게시글 삭제 가능
+            deleted = cService.adminDeletePost(postId);
+        } else {
+            // 일반 사용자는 본인 글만 삭제 가능
+            deleted = cService.deletePost(postId, memberId);
+        }
+
         if (!deleted) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("success", false, "message", "본인이 작성한 글만 삭제할 수 있습니다."));

@@ -14,7 +14,8 @@
             p.TITLE AS title,
             p.CONTENT AS content,
             p.VIEWS AS views,
-            p.CREATED_AT AS createdAt
+            p.CREATED_AT AS createdAt,
+            (SELECT COUNT(*) FROM COMMUNITY_COMMENT WHERE POST_ID = p.POST_ID) AS commentCount
         FROM COMMUNITY_POST p
         JOIN MEMBER m ON p.MEMBER_ID = m.MEMBER_ID
         WHERE p.STATUS = 'ACTIVE'
@@ -44,7 +45,8 @@
             p.TITLE AS title,
             p.CONTENT AS content,
             p.VIEWS AS views,
-            p.CREATED_AT AS createdAt
+            p.CREATED_AT AS createdAt,
+            (SELECT COUNT(*) FROM COMMUNITY_COMMENT WHERE POST_ID = p.POST_ID) AS commentCount
         FROM COMMUNITY_POST p
         JOIN MEMBER m ON p.MEMBER_ID = m.MEMBER_ID
         WHERE p.POST_ID = #{postId}
@@ -100,4 +102,19 @@
         WHERE MEMBER_ID = #{memberId}
           AND STATUS = 'ACTIVE'
     </select>
+
+    <update id="updatePost">
+        UPDATE COMMUNITY_POST
+        SET TITLE = #{title},
+            CONTENT = #{content},
+            CATEGORY = #{category},
+            UPDATED_AT = SYSDATE
+        WHERE POST_ID = #{postId}
+    </update>
+
+    <update id="adminDeletePost">
+        UPDATE COMMUNITY_POST
+        SET STATUS = 'DELETED'
+        WHERE POST_ID = #{postId}
+    </update>
 </mapper>
