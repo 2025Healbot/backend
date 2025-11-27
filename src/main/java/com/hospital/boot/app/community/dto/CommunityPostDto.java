@@ -16,6 +16,7 @@ public class CommunityPostDto {
     private String title;
     private String content;
     private Integer views;
+    private Integer commentCount;  // 댓글 개수
     private Date createdAt;
     private Date updatedAt;
 }

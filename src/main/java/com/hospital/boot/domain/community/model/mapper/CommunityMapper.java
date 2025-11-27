@@ -27,8 +27,12 @@ public interface CommunityMapper {
     int deletePost(
             @Param("postId") Long postId,
             @Param("memberId") String memberId);
-    
+
     int countPostsByMember(String memberId);
-    
+
     int increaseViews(Long postId);
+
+    int updatePost(Community post);
+
+    int adminDeletePost(@Param("postId") Long postId);
 }
