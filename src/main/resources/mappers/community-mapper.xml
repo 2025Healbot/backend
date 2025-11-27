@@ -117,4 +117,29 @@
         SET STATUS = 'DELETED'
         WHERE POST_ID = #{postId}
     </update>
+    
+    <insert id="insertReport"
+        parameterType="com.hospital.boot.domain.community.model.vo.CommunityReport">
+	    INSERT INTO COMMUNITY_REPORT (
+	        REPORT_ID,
+	        TARGET_TYPE,
+	        POST_ID,
+	        COMMENT_ID,
+	        REPORTER_ID,
+	        REASON_TYPE,
+	        DETAIL,
+	        STATUS,
+	        CREATED_AT
+	    ) VALUES (
+	        COMMUNITY_REPORT_SEQ.NEXTVAL,
+	        #{targetType,  jdbcType=VARCHAR},
+	        #{postId,     jdbcType=NUMERIC},
+	        #{commentId,  jdbcType=NUMERIC},
+	        #{reporterId, jdbcType=VARCHAR},
+	        #{reasonType, jdbcType=VARCHAR},
+	        #{detail,     jdbcType=VARCHAR},
+	        NVL(#{status, jdbcType=VARCHAR}, 'PENDING'),
+	        SYSDATE
+	    )
+	</insert>
 </mapper>

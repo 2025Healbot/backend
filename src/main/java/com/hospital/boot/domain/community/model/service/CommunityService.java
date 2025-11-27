@@ -25,5 +25,9 @@ public interface CommunityService {
 	boolean updatePost(Long postId, CommunityPostWriteRequest req);
 
 	boolean adminDeletePost(Long postId);
+	
+	void reportPost(String reporterId, Long postId, CommunityReportRequest req);
+
+    void reportComment(String reporterId, Long commentId, CommunityReportRequest req);
 
 }

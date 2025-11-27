@@ -3,6 +3,8 @@ package com.hospital.boot.domain.community.model.service.impl;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 
 import com.hospital.boot.app.community.dto.*;
@@ -92,5 +94,35 @@ public class CommunityServiceImpl implements CommunityService {
 		int affected = cMapper.adminDeletePost(postId);
 		return affected > 0;
 	}
+	
+	@Override
+    @Transactional
+    public void reportPost(String reporterId, Long postId, CommunityReportRequest req) {
+        CommunityReport r = new CommunityReport();
+        r.setTargetType("POST");
+        r.setPostId(postId);
+        r.setCommentId(null);
+        r.setReporterId(reporterId);
+        r.setReasonType(req.getReasonType());
+        r.setDetail(req.getDetail());
+        r.setStatus("PENDING");
+
+        cMapper.insertReport(r);
+    }
+
+    @Override
+    @Transactional
+    public void reportComment(String reporterId, Long commentId, CommunityReportRequest req) {
+        CommunityReport r = new CommunityReport();
+        r.setTargetType("COMMENT");
+        r.setPostId(null);
+        r.setCommentId(commentId);
+        r.setReporterId(reporterId);
+        r.setReasonType(req.getReasonType());
+        r.setDetail(req.getDetail());
+        r.setStatus("PENDING");
+
+        cMapper.insertReport(r);
+    }
 
 }
