@@ -11,12 +11,11 @@ import lombok.NoArgsConstructor;
 public class CommunityPostDto {
     private Long postId;
     private String memberId;
-    private String author;     // 화면에 표시할 작성자 이름(회원 이름)
+    private String author;
     private String category;
     private String title;
     private String content;
     private Integer views;
-    private Integer commentCount;  // 댓글 개수
     private Date createdAt;
     private Date updatedAt;
 }

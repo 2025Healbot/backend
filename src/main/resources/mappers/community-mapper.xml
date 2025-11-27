@@ -14,8 +14,7 @@
             p.TITLE AS title,
             p.CONTENT AS content,
             p.VIEWS AS views,
-            p.CREATED_AT AS createdAt,
-            (SELECT COUNT(*) FROM COMMUNITY_COMMENT WHERE POST_ID = p.POST_ID) AS commentCount
+            p.CREATED_AT AS createdAt
         FROM COMMUNITY_POST p
         JOIN MEMBER m ON p.MEMBER_ID = m.MEMBER_ID
         WHERE p.STATUS = 'ACTIVE'
@@ -45,8 +44,7 @@
             p.TITLE AS title,
             p.CONTENT AS content,
             p.VIEWS AS views,
-            p.CREATED_AT AS createdAt,
-            (SELECT COUNT(*) FROM COMMUNITY_COMMENT WHERE POST_ID = p.POST_ID) AS commentCount
+            p.CREATED_AT AS createdAt
         FROM COMMUNITY_POST p
         JOIN MEMBER m ON p.MEMBER_ID = m.MEMBER_ID
         WHERE p.POST_ID = #{postId}
@@ -142,4 +140,76 @@
 	        SYSDATE
 	    )
 	</insert>
+
+    <select id="selectReportList" resultType="com.hospital.boot.app.community.dto.CommunityReportDto">
+        SELECT
+            r.REPORT_ID AS reportId,
+            r.TARGET_TYPE AS targetType,
+            r.POST_ID AS postId,
+            r.COMMENT_ID AS commentId,
+            r.REPORTER_ID AS reporterId,
+            m.USER_NAME AS reporterName,
+            r.REASON_TYPE AS reasonType,
+            r.DETAIL AS detail,
+            r.STATUS AS status,
+            r.PENALTY_REASON AS penaltyReason,
+            r.CREATED_AT AS createdAt,
+            p.TITLE AS postTitle,
+            c.CONTENT AS commentContent,
+            CASE
+                WHEN r.TARGET_TYPE = 'POST' THEN p.MEMBER_ID
+                WHEN r.TARGET_TYPE = 'COMMENT' THEN c.MEMBER_ID
+            END AS targetAuthorId
+        FROM COMMUNITY_REPORT r
+        LEFT JOIN MEMBER m ON r.REPORTER_ID = m.MEMBER_ID
+        LEFT JOIN COMMUNITY_POST p ON r.POST_ID = p.POST_ID
+        LEFT JOIN COMMUNITY_COMMENT c ON r.COMMENT_ID = c.COMMENT_ID
+        <where>
+            <if test="status != null and status != ''">
+                AND r.STATUS = #{status}
+            </if>
+            <if test="targetType != null and targetType != ''">
+                AND r.TARGET_TYPE = #{targetType}
+            </if>
+        </where>
+        ORDER BY r.CREATED_AT DESC
+    </select>
+
+    <select id="selectReportDetail" parameterType="long" resultType="com.hospital.boot.app.community.dto.CommunityReportDto">
+        SELECT
+            r.REPORT_ID AS reportId,
+            r.TARGET_TYPE AS targetType,
+            r.POST_ID AS postId,
+            r.COMMENT_ID AS commentId,
+            r.REPORTER_ID AS reporterId,
+            m.USER_NAME AS reporterName,
+            r.REASON_TYPE AS reasonType,
+            r.DETAIL AS detail,
+            r.STATUS AS status,
+            r.PENALTY_REASON AS penaltyReason,
+            r.CREATED_AT AS createdAt,
+            p.TITLE AS postTitle,
+            c.CONTENT AS commentContent,
+            CASE
+                WHEN r.TARGET_TYPE = 'POST' THEN p.MEMBER_ID
+                WHEN r.TARGET_TYPE = 'COMMENT' THEN c.MEMBER_ID
+            END AS targetAuthorId
+        FROM COMMUNITY_REPORT r
+        LEFT JOIN MEMBER m ON r.REPORTER_ID = m.MEMBER_ID
+        LEFT JOIN COMMUNITY_POST p ON r.POST_ID = p.POST_ID
+        LEFT JOIN COMMUNITY_COMMENT c ON r.COMMENT_ID = c.COMMENT_ID
+        WHERE r.REPORT_ID = #{reportId}
+    </select>
+
+    <update id="updateReportStatus">
+        UPDATE COMMUNITY_REPORT
+        SET STATUS = #{status},
+            PENALTY_REASON = #{penaltyReason}
+        WHERE REPORT_ID = #{reportId}
+    </update>
+
+    <delete id="deleteReport">
+        DELETE FROM COMMUNITY_REPORT
+        WHERE REPORT_ID = #{reportId}
+    </delete>
 </mapper>

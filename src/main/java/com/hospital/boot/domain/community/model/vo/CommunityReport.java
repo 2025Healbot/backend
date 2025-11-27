@@ -9,12 +9,13 @@ import lombok.Setter;
 @Setter
 public class CommunityReport {
 	private Long reportId;
-    private String targetType;   
+    private String targetType;
     private Long postId;
     private Long commentId;
     private String reporterId;
     private String reasonType;
     private String detail;
-    private String status;       
+    private String status;
+    private String penaltyReason;  // 제재사유
     private LocalDateTime createdAt;
 }

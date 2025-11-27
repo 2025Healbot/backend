@@ -110,19 +110,41 @@ public class CommunityServiceImpl implements CommunityService {
         cMapper.insertReport(r);
     }
 
-    @Override
-    @Transactional
-    public void reportComment(String reporterId, Long commentId, CommunityReportRequest req) {
-        CommunityReport r = new CommunityReport();
-        r.setTargetType("COMMENT");
-        r.setPostId(null);
-        r.setCommentId(commentId);
-        r.setReporterId(reporterId);
-        r.setReasonType(req.getReasonType());
-        r.setDetail(req.getDetail());
-        r.setStatus("PENDING");
+	@Override
+	@Transactional
+	public void reportComment(String reporterId, Long commentId, CommunityReportRequest req) {
+		CommunityReport r = new CommunityReport();
+		r.setTargetType("COMMENT");
+		r.setPostId(null);
+		r.setCommentId(commentId);
+		r.setReporterId(reporterId);
+		r.setReasonType(req.getReasonType());
+		r.setDetail(req.getDetail());
+		r.setStatus("PENDING");
 
-        cMapper.insertReport(r);
-    }
+		cMapper.insertReport(r);
+	}
+
+	@Override
+	public List<CommunityReportDto> getReportList(String status, String targetType) {
+		return cMapper.selectReportList(status, targetType);
+	}
+
+	@Override
+	public CommunityReportDto getReportDetail(Long reportId) {
+		return cMapper.selectReportDetail(reportId);
+	}
+
+	@Override
+	public boolean updateReportStatus(Long reportId, String status, String penaltyReason) {
+		int affected = cMapper.updateReportStatus(reportId, status, penaltyReason);
+		return affected > 0;
+	}
+
+	@Override
+	public boolean deleteReport(Long reportId) {
+		int affected = cMapper.deleteReport(reportId);
+		return affected > 0;
+	}
 
 }

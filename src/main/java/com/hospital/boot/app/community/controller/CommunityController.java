@@ -230,4 +230,80 @@ public class CommunityController {
                 "message", "신고가 접수되었습니다."
         ));
     }
+
+    // =======================
+    // 📌 신고 목록 조회
+    // =======================
+    @GetMapping("/reports")
+    public ResponseEntity<List<CommunityReportDto>> listReports(
+            @RequestParam(name = "status", defaultValue = "") String status,
+            @RequestParam(name = "targetType", defaultValue = "") String targetType) {
+
+        List<CommunityReportDto> list = cService.getReportList(status, targetType);
+        return ResponseEntity.ok(list);
+    }
+
+    // =======================
+    // 📌 신고 상세 조회
+    // =======================
+    @GetMapping("/reports/{reportId}")
+    public ResponseEntity<CommunityReportDto> getReport(@PathVariable Long reportId) {
+        CommunityReportDto dto = cService.getReportDetail(reportId);
+        if (dto == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
+    }
+
+    // =======================
+    // 📌 제재사유 입력 (자동으로 처리완료 상태로 변경)
+    // =======================
+    @PutMapping("/reports/{reportId}/penalty")
+    public ResponseEntity<?> submitPenalty(
+            @PathVariable Long reportId,
+            @RequestBody Map<String, String> body,
+            HttpSession session) {
+
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        String penaltyReason = body.get("penaltyReason");
+        if (penaltyReason == null || penaltyReason.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "message", "제재사유를 입력해주세요."));
+        }
+
+        // 제재사유 입력 시 자동으로 RESOLVED 상태로 변경
+        boolean updated = cService.updateReportStatus(reportId, "RESOLVED", penaltyReason);
+        if (!updated) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "제재사유 등록에 실패했습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    // =======================
+    // 📌 신고 삭제
+    // =======================
+    @DeleteMapping("/reports/{reportId}")
+    public ResponseEntity<?> deleteReport(
+            @PathVariable Long reportId,
+            HttpSession session) {
+
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        boolean deleted = cService.deleteReport(reportId);
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "신고 삭제에 실패했습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of("success", true));
+    }
 }

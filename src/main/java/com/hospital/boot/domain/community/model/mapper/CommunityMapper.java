@@ -35,6 +35,19 @@ public interface CommunityMapper {
     int updatePost(Community post);
 
     int adminDeletePost(@Param("postId") Long postId);
-    
+
     int insertReport(CommunityReport report);
+
+    List<CommunityReportDto> selectReportList(
+            @Param("status") String status,
+            @Param("targetType") String targetType);
+
+    CommunityReportDto selectReportDetail(@Param("reportId") Long reportId);
+
+    int updateReportStatus(
+            @Param("reportId") Long reportId,
+            @Param("status") String status,
+            @Param("penaltyReason") String penaltyReason);
+
+    int deleteReport(@Param("reportId") Long reportId);
 }
