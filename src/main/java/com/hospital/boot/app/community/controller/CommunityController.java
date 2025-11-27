@@ -186,4 +186,48 @@ public class CommunityController {
                 "count", count
         ));
     }
+    
+    // 🔴 게시글 신고
+    @PostMapping("/posts/{postId}/report")
+    public ResponseEntity<?> reportPost(
+            @PathVariable Long postId,
+            @RequestBody CommunityReportRequest req,
+            HttpSession session
+    ) {
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "로그인이 필요합니다."
+            ));
+        }
+
+        cService.reportPost(memberId, postId, req);
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "신고가 접수되었습니다."
+        ));
+    }
+
+    // 🔴 댓글 신고
+    @PostMapping("/comments/{commentId}/report")
+    public ResponseEntity<?> reportComment(
+            @PathVariable Long commentId,
+            @RequestBody CommunityReportRequest req,
+            HttpSession session
+    ) {
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "success", false,
+                    "message", "로그인이 필요합니다."
+            ));
+        }
+
+        cService.reportComment(memberId, commentId, req);
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "신고가 접수되었습니다."
+        ));
+    }
 }

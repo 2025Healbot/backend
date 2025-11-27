@@ -35,4 +35,6 @@ public interface CommunityMapper {
     int updatePost(Community post);
 
     int adminDeletePost(@Param("postId") Long postId);
+    
+    int insertReport(CommunityReport report);
 }
