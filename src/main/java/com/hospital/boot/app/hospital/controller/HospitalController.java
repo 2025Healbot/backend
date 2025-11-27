@@ -30,4 +30,14 @@ public class HospitalController {
         return hService.findHospitalsByBounds(swLat, swLng, neLat, neLng, emergencyOnly);
     }
 
+    @GetMapping
+    public List<Hospital> searchHospitals(
+            @RequestParam(required = false) List<String> departments
+    ) {
+        if (departments == null || departments.isEmpty() || departments.contains("전체")) {
+            return hService.findAllHospitals();
+        }
+        return hService.findByDepartments(departments);
+    }
+
 }
