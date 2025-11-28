@@ -315,6 +315,21 @@ public class CommunityController {
             @PathVariable Long postId,
             HttpSession session) {
 
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        boolean toggled = cService.togglePostVisibility(postId);
+        if (!toggled) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "게시글 상태 변경에 실패했습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
     
  // =======================
     // 📌 내가 제재 받은 내역 목록
@@ -342,13 +357,6 @@ public class CommunityController {
                     .body(Map.of("success", false, "message", "로그인이 필요합니다."));
         }
 
-        boolean toggled = cService.togglePostVisibility(postId);
-        if (!toggled) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "message", "게시글 상태 변경에 실패했습니다."));
-        }
-
-        return ResponseEntity.ok(Map.of("success", true));
         List<MySanctionDto> list = cService.getMyReportedSanctions(memberId);
         return ResponseEntity.ok(list);
     }
