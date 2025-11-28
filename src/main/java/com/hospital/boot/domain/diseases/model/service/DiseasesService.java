@@ -1,6 +1,7 @@
 package com.hospital.boot.domain.diseases.model.service;
 
 import com.hospital.boot.domain.diseases.model.vo.Diseases;
+import com.hospital.boot.domain.diseases.model.vo.FeaturedDiseases;
 
 import java.util.List;
 import java.util.Map;
@@ -14,4 +15,15 @@ public interface DiseasesService {
     String findDiseasesBySymptoms(List<String> symptoms);
 
     List<Map<String, Object>> findPopularDiseases();
+
+    List<Map<String, Object>> findAllDiseases();
+
+    // Featured Diseases
+    List<FeaturedDiseases> findAllFeaturedDiseases();
+
+    int addFeaturedDisease(String diseaseName);
+
+    int removeFeaturedDisease(int featuredDiseasesNo);
+
+    int updateFeaturedDiseasesOrder(List<FeaturedDiseases> list);
 }

@@ -40,4 +40,9 @@ public interface CommunityService {
 
 	boolean togglePostVisibility(Long postId);
 
+	List<MySanctionDto> getMyReceivedSanctions(String memberId);
+
+    List<MySanctionDto> getMyReportedSanctions(String memberId);
+
+    int getMySanctionCount(String memberId);
 }

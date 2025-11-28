@@ -52,4 +52,13 @@ public interface CommunityMapper {
     int deleteReport(@Param("reportId") Long reportId);
 
     int togglePostVisibility(@Param("postId") Long postId);
+    
+    /** 내가 제재 받은 내역 (내 글/댓글이 신고되어 제재된 것) */
+    List<MySanctionDto> selectMyReceivedSanctions(@Param("memberId") String memberId);
+
+    /** 내가 신고해서 제재까지 간 내역 */
+    List<MySanctionDto> selectMyReportedSanctions(@Param("memberId") String memberId);
+
+    /** 내가 받은 제재 개수 */
+    int selectMySanctionCount(@Param("memberId") String memberId);
 }

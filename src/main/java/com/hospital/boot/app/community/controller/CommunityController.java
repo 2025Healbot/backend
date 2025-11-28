@@ -315,6 +315,27 @@ public class CommunityController {
             @PathVariable Long postId,
             HttpSession session) {
 
+    
+ // =======================
+    // 📌 내가 제재 받은 내역 목록
+    // =======================
+    @GetMapping("/my-sanctions/received")
+    public ResponseEntity<?> getMyReceivedSanctions(HttpSession session) {
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        List<MySanctionDto> list = cService.getMyReceivedSanctions(memberId);
+        return ResponseEntity.ok(list);   // 그대로 배열 리턴
+    }
+
+    // =======================
+    // 📌 내가 신고해서 제재된 내역 목록
+    // =======================
+    @GetMapping("/my-sanctions/reported")
+    public ResponseEntity<?> getMyReportedSanctions(HttpSession session) {
         String memberId = (String) session.getAttribute("memberId");
         if (memberId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -328,5 +349,26 @@ public class CommunityController {
         }
 
         return ResponseEntity.ok(Map.of("success", true));
+        List<MySanctionDto> list = cService.getMyReportedSanctions(memberId);
+        return ResponseEntity.ok(list);
+    }
+
+    // =======================
+    // 📌 내가 받은 제재 개수 (마이페이지 표시용)
+    //   -> 프론트: /react/api/community/my-sanction-count 로 호출
+    // =======================
+    @GetMapping("/my-sanction-count")
+    public ResponseEntity<?> getMySanctionCount(HttpSession session) {
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        int count = cService.getMySanctionCount(memberId);
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "count", count
+        ));
     }
 }
