@@ -82,6 +82,10 @@ public class DiseasesServiceImpl implements DiseasesService {
 
     @Override
     public int updateFeaturedDiseasesOrder(List<FeaturedDiseases> list) {
-        return dMapper.updateFeaturedDiseaseOrder(list);
+        int totalUpdated = 0;
+        for (FeaturedDiseases item : list) {
+            totalUpdated += dMapper.updateFeaturedDiseaseOrder(item);
+        }
+        return totalUpdated;
     }
 }

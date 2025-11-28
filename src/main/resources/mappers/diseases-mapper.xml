@@ -169,10 +169,8 @@
     </delete>
 
     <update id="updateFeaturedDiseaseOrder">
-        <foreach collection="list" item="item" separator=";">
-            UPDATE FEATURED_DISEASES
-            SET DISPLAY_ORDER = #{item.displayOrder}
-            WHERE FEATURED_DISEASES_NO = #{item.featuredDiseasesNo}
-        </foreach>
+        UPDATE FEATURED_DISEASES
+        SET DISPLAY_ORDER = #{item.displayOrder}
+        WHERE FEATURED_DISEASES_NO = #{item.featuredDiseasesNo}
     </update>
 </mapper>

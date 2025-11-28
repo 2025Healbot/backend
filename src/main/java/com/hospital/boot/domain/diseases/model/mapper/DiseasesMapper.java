@@ -28,5 +28,5 @@ public interface DiseasesMapper {
 
     int deleteFeaturedDisease(int featuredDiseasesNo);
 
-    int updateFeaturedDiseaseOrder(@Param("list") List<FeaturedDiseases> list);
+    int updateFeaturedDiseaseOrder(@Param("item") FeaturedDiseases item);
 }
