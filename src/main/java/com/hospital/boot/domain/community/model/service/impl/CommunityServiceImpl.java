@@ -147,4 +147,10 @@ public class CommunityServiceImpl implements CommunityService {
 		return affected > 0;
 	}
 
+	@Override
+	public boolean togglePostVisibility(Long postId) {
+		int affected = cMapper.togglePostVisibility(postId);
+		return affected > 0;
+	}
+
 }

@@ -50,4 +50,6 @@ public interface CommunityMapper {
             @Param("penaltyReason") String penaltyReason);
 
     int deleteReport(@Param("reportId") Long reportId);
+
+    int togglePostVisibility(@Param("postId") Long postId);
 }

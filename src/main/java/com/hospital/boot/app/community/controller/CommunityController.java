@@ -306,4 +306,27 @@ public class CommunityController {
 
         return ResponseEntity.ok(Map.of("success", true));
     }
+
+    // =======================
+    // 📌 게시글 숨김/해제 토글
+    // =======================
+    @PutMapping("/posts/{postId}/toggle-visibility")
+    public ResponseEntity<?> togglePostVisibility(
+            @PathVariable Long postId,
+            HttpSession session) {
+
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        boolean toggled = cService.togglePostVisibility(postId);
+        if (!toggled) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "게시글 상태 변경에 실패했습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of("success", true));
+    }
 }

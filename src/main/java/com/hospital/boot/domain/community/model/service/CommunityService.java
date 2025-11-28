@@ -38,4 +38,6 @@ public interface CommunityService {
 
 	boolean deleteReport(Long reportId);
 
+	boolean togglePostVisibility(Long postId);
+
 }
