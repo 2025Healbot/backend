@@ -2,6 +2,7 @@ package com.hospital.boot.app.diseases.controller;
 
 import com.hospital.boot.domain.diseases.model.service.DiseasesService;
 import com.hospital.boot.domain.diseases.model.vo.Diseases;
+import com.hospital.boot.domain.diseases.model.vo.FeaturedDiseases;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -118,6 +119,111 @@ public class DiseasesController {
             return ResponseEntity.status(500).body(Map.of(
                 "success", false,
                 "error", e.getMessage()
+            ));
+        }
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Map<String, Object>> getAllDiseases() {
+        try {
+            List<Map<String, Object>> allDiseases = dService.findAllDiseases();
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", allDiseases
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "error", e.getMessage()
+            ));
+        }
+    }
+
+    // Featured Diseases API
+    @GetMapping("/featured")
+    public ResponseEntity<List<FeaturedDiseases>> getFeaturedDiseases() {
+        try {
+            List<FeaturedDiseases> featuredDiseases = dService.findAllFeaturedDiseases();
+            return ResponseEntity.ok(featuredDiseases);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @PostMapping("/featured")
+    public ResponseEntity<Map<String, Object>> addFeaturedDisease(@RequestBody Map<String, String> request) {
+        try {
+            String diseaseName = request.get("diseaseName");
+            if (diseaseName == null || diseaseName.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "질병명을 입력해주세요."
+                ));
+            }
+
+            int result = dService.addFeaturedDisease(diseaseName);
+            if (result > 0) {
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "질병이 추가되었습니다."
+                ));
+            } else {
+                return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "질병 추가에 실패했습니다."
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    @DeleteMapping("/featured/{id}")
+    public ResponseEntity<Map<String, Object>> removeFeaturedDisease(@PathVariable("id") int featuredDiseasesNo) {
+        try {
+            int result = dService.removeFeaturedDisease(featuredDiseasesNo);
+            if (result > 0) {
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "질병이 삭제되었습니다."
+                ));
+            } else {
+                return ResponseEntity.status(404).body(Map.of(
+                    "success", false,
+                    "message", "질병을 찾을 수 없습니다."
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    @PutMapping("/featured/order")
+    public ResponseEntity<Map<String, Object>> updateFeaturedDiseasesOrder(@RequestBody List<FeaturedDiseases> list) {
+        try {
+            int result = dService.updateFeaturedDiseasesOrder(list);
+            if (result > 0) {
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "순서가 변경되었습니다."
+                ));
+            } else {
+                return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "순서 변경에 실패했습니다."
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", e.getMessage()
             ));
         }
     }

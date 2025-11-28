@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hospital.boot.domain.diseases.model.service.DiseasesService;
 import com.hospital.boot.domain.diseases.model.mapper.DiseasesMapper;
 import com.hospital.boot.domain.diseases.model.vo.Diseases;
+import com.hospital.boot.domain.diseases.model.vo.FeaturedDiseases;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
@@ -46,5 +47,41 @@ public class DiseasesServiceImpl implements DiseasesService {
     @Override
     public List<Map<String, Object>> findPopularDiseases() {
         return dMapper.findPopularDiseases();
+    }
+
+    @Override
+    public List<Map<String, Object>> findAllDiseases() {
+        return dMapper.findAllDiseases();
+    }
+
+    @Override
+    public List<FeaturedDiseases> findAllFeaturedDiseases() {
+        return dMapper.findAllFeaturedDiseases();
+    }
+
+    @Override
+    public int addFeaturedDisease(String diseaseName) {
+        // 현재 최대 순서 번호 가져오기
+        List<FeaturedDiseases> currentList = dMapper.findAllFeaturedDiseases();
+        int maxOrder = currentList.isEmpty() ? 0 : currentList.stream()
+                .mapToInt(FeaturedDiseases::getDisplayOrder)
+                .max()
+                .orElse(0);
+
+        FeaturedDiseases featuredDisease = new FeaturedDiseases();
+        featuredDisease.setDiseaseName(diseaseName);
+        featuredDisease.setDisplayOrder(maxOrder + 1);
+
+        return dMapper.insertFeaturedDisease(featuredDisease);
+    }
+
+    @Override
+    public int removeFeaturedDisease(int featuredDiseasesNo) {
+        return dMapper.deleteFeaturedDisease(featuredDiseasesNo);
+    }
+
+    @Override
+    public int updateFeaturedDiseasesOrder(List<FeaturedDiseases> list) {
+        return dMapper.updateFeaturedDiseaseOrder(list);
     }
 }
