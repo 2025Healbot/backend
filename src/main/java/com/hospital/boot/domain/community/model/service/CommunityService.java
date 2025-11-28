@@ -38,4 +38,9 @@ public interface CommunityService {
 
 	boolean deleteReport(Long reportId);
 
+	List<MySanctionDto> getMyReceivedSanctions(String memberId);
+
+    List<MySanctionDto> getMyReportedSanctions(String memberId);
+
+    int getMySanctionCount(String memberId);
 }

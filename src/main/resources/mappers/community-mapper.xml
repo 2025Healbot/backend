@@ -212,4 +212,93 @@
         DELETE FROM COMMUNITY_REPORT
         WHERE REPORT_ID = #{reportId}
     </delete>
+    
+    <!-- 내가 제재 받은 내역 (내 글/댓글이 신고되고 PENALTY_REASON 이 있는 것) -->
+	<select id="selectMyReceivedSanctions"
+	        parameterType="string"
+	        resultType="com.hospital.boot.app.community.dto.MySanctionDto">
+	
+	    SELECT
+	        r.REPORT_ID        AS reportId,
+	        r.TARGET_TYPE      AS targetType,
+	        r.POST_ID          AS postId,
+	        r.COMMENT_ID       AS commentId,
+	        r.REPORTER_ID      AS reporterId,
+	        r.REASON_TYPE      AS reasonType,
+	        r.DETAIL           AS detail,
+	        r.STATUS           AS status,
+	        r.PENALTY_REASON   AS penaltyReason,
+	        TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD HH24:MI') AS createdAt,
+	        CASE
+	            WHEN r.TARGET_TYPE = 'POST'
+	              THEN SUBSTR(p.TITLE, 1, 80)
+	            WHEN r.TARGET_TYPE = 'COMMENT'
+	              THEN SUBSTR(c.CONTENT, 1, 80)
+	            ELSE '(알 수 없음)'
+	        END AS targetSummary
+	    FROM COMMUNITY_REPORT r
+	         LEFT JOIN COMMUNITY_POST p
+	                ON r.POST_ID = p.POST_ID
+	         LEFT JOIN COMMUNITY_COMMENT c
+	                ON r.COMMENT_ID = c.COMMENT_ID
+	    WHERE
+	        r.PENALTY_REASON IS NOT NULL
+	        AND (
+	              (r.TARGET_TYPE = 'POST'    AND p.MEMBER_ID = #{memberId})
+	           OR (r.TARGET_TYPE = 'COMMENT' AND c.MEMBER_ID = #{memberId})
+	        )
+	    ORDER BY r.REPORT_ID DESC
+	</select>
+	
+	<!-- 내가 신고해서 제재까지 간 내역 (내가 신고자이고 PENALTY_REASON 이 있는 것) -->
+	<select id="selectMyReportedSanctions"
+	        parameterType="string"
+	        resultType="com.hospital.boot.app.community.dto.MySanctionDto">
+	
+	    SELECT
+	        r.REPORT_ID        AS reportId,
+	        r.TARGET_TYPE      AS targetType,
+	        r.POST_ID          AS postId,
+	        r.COMMENT_ID       AS commentId,
+	        r.REPORTER_ID      AS reporterId,
+	        r.REASON_TYPE      AS reasonType,
+	        r.DETAIL           AS detail,
+	        r.STATUS           AS status,
+	        r.PENALTY_REASON   AS penaltyReason,
+	        TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD HH24:MI') AS createdAt,
+	        CASE
+	            WHEN r.TARGET_TYPE = 'POST'
+	              THEN SUBSTR(p.TITLE, 1, 80)
+	            WHEN r.TARGET_TYPE = 'COMMENT'
+	              THEN SUBSTR(c.CONTENT, 1, 80)
+	            ELSE '(알 수 없음)'
+	        END AS targetSummary
+	    FROM COMMUNITY_REPORT r
+	         LEFT JOIN COMMUNITY_POST p
+	                ON r.POST_ID = p.POST_ID
+	         LEFT JOIN COMMUNITY_COMMENT c
+	                ON r.COMMENT_ID = c.COMMENT_ID
+	    WHERE
+	        r.REPORTER_ID  = #{memberId}
+	        AND r.PENALTY_REASON IS NOT NULL
+	    ORDER BY r.REPORT_ID DESC
+	</select>
+	
+	<!-- 내가 받은 제재 개수 -->
+	<select id="selectMySanctionCount"
+	        parameterType="string"
+	        resultType="int">
+	    SELECT COUNT(*)
+	    FROM COMMUNITY_REPORT r
+	         LEFT JOIN COMMUNITY_POST p
+	                ON r.POST_ID = p.POST_ID
+	         LEFT JOIN COMMUNITY_COMMENT c
+	                ON r.COMMENT_ID = c.COMMENT_ID
+	    WHERE
+	        r.PENALTY_REASON IS NOT NULL
+	        AND (
+	              (r.TARGET_TYPE = 'POST'    AND p.MEMBER_ID = #{memberId})
+	           OR (r.TARGET_TYPE = 'COMMENT' AND c.MEMBER_ID = #{memberId})
+	        )
+	</select>
 </mapper>
