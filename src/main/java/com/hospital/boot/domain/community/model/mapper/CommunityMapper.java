@@ -50,6 +50,8 @@ public interface CommunityMapper {
             @Param("penaltyReason") String penaltyReason);
 
     int deleteReport(@Param("reportId") Long reportId);
+
+    int togglePostVisibility(@Param("postId") Long postId);
     
     /** 내가 제재 받은 내역 (내 글/댓글이 신고되어 제재된 것) */
     List<MySanctionDto> selectMyReceivedSanctions(@Param("memberId") String memberId);

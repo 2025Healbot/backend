@@ -155,6 +155,7 @@
             r.PENALTY_REASON AS penaltyReason,
             r.CREATED_AT AS createdAt,
             p.TITLE AS postTitle,
+            p.STATUS AS postStatus,
             c.CONTENT AS commentContent,
             CASE
                 WHEN r.TARGET_TYPE = 'POST' THEN p.MEMBER_ID
@@ -189,6 +190,7 @@
             r.PENALTY_REASON AS penaltyReason,
             r.CREATED_AT AS createdAt,
             p.TITLE AS postTitle,
+            p.STATUS AS postStatus,
             c.CONTENT AS commentContent,
             CASE
                 WHEN r.TARGET_TYPE = 'POST' THEN p.MEMBER_ID
@@ -212,6 +214,15 @@
         DELETE FROM COMMUNITY_REPORT
         WHERE REPORT_ID = #{reportId}
     </delete>
+
+    <update id="togglePostVisibility">
+        UPDATE COMMUNITY_POST
+        SET STATUS = CASE
+            WHEN STATUS = 'HIDDEN' THEN 'ACTIVE'
+            ELSE 'HIDDEN'
+        END
+        WHERE POST_ID = #{postId}
+    </update>
     
     <!-- 내가 제재 받은 내역 (내 글/댓글이 신고되고 PENALTY_REASON 이 있는 것) -->
 	<select id="selectMyReceivedSanctions"

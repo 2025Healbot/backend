@@ -162,4 +162,10 @@ public class CommunityServiceImpl implements CommunityService {
         return cMapper.selectMySanctionCount(memberId);
     }
 
+	@Override
+	public boolean togglePostVisibility(Long postId) {
+		int affected = cMapper.togglePostVisibility(postId);
+		return affected > 0;
+	}
+
 }

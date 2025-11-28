@@ -38,6 +38,8 @@ public interface CommunityService {
 
 	boolean deleteReport(Long reportId);
 
+	boolean togglePostVisibility(Long postId);
+
 	List<MySanctionDto> getMyReceivedSanctions(String memberId);
 
     List<MySanctionDto> getMyReportedSanctions(String memberId);
