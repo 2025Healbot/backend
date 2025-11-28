@@ -146,5 +146,20 @@ public class CommunityServiceImpl implements CommunityService {
 		int affected = cMapper.deleteReport(reportId);
 		return affected > 0;
 	}
+	
+	@Override
+    public List<MySanctionDto> getMyReceivedSanctions(String memberId) {
+        return cMapper.selectMyReceivedSanctions(memberId);
+    }
+
+    @Override
+    public List<MySanctionDto> getMyReportedSanctions(String memberId) {
+        return cMapper.selectMyReportedSanctions(memberId);
+    }
+
+    @Override
+    public int getMySanctionCount(String memberId) {
+        return cMapper.selectMySanctionCount(memberId);
+    }
 
 }
