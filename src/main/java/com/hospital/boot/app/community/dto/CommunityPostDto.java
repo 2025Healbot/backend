@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 public class CommunityPostDto {
     private Long postId;
     private String memberId;
-    private String author;
     private String category;
     private String title;
     private String content;

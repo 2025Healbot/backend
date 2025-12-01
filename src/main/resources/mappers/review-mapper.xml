@@ -1,0 +1,87 @@
+<!-- src/main/resources/mappers/ReviewMapper.xml -->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hospital.boot.domain.review.model.mapper.ReviewMapper">
+
+    <resultMap id="reviewResultMap" type="com.hospital.boot.domain.review.model.vo.Review">
+        <id     property="reviewId"   column="REVIEW_ID"/>
+        <result property="hospitalId" column="HOSPITAL_ID"/>
+        <result property="memberId"   column="MEMBER_ID"/>
+        <result property="score"      column="SCORE"/>
+        <result property="content"    column="CONTENT"/>
+        <result property="createdAt"  column="CREATED_AT"/>
+        <result property="writerName" column="USER_NAME"/>
+    </resultMap>
+
+    <!-- 리뷰 목록 -->
+    <select id="findReviews" resultMap="reviewResultMap">
+        SELECT
+            r.REVIEW_ID,
+            r.HOSPITAL_ID,
+            r.MEMBER_ID,
+            r.SCORE,
+            r.CONTENT,
+            r.CREATED_AT,
+            m.USER_NAME
+        FROM REVIEWS r
+        JOIN MEMBER m ON r.MEMBER_ID = m.MEMBER_ID
+        WHERE r.HOSPITAL_ID = #{hospitalId}
+        <if test="scoreFilter != null">
+            AND r.SCORE = #{scoreFilter}
+        </if>
+        <choose>
+            <when test="sort == 'high'">
+                ORDER BY r.SCORE DESC, r.CREATED_AT DESC
+            </when>
+            <when test="sort == 'low'">
+                ORDER BY r.SCORE ASC, r.CREATED_AT DESC
+            </when>
+            <otherwise>
+                ORDER BY r.CREATED_AT DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 평균 평점 -->
+    <select id="getAvgScore" resultType="double">
+        SELECT NVL(AVG(SCORE), 0)
+        FROM REVIEWS
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </select>
+
+    <!-- 총 개수 -->
+    <select id="getTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM REVIEWS
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </select>
+
+    <!-- 병원 이름 -->
+    <select id="getHospitalName" resultType="string">
+        SELECT HOSPITAL_NAME
+        FROM HOSPITALS
+        WHERE HOSPITAL_ID = #{hospitalId}
+    </select>
+
+    <!-- 리뷰 등록 -->
+    <insert id="insertReview"
+            parameterType="com.hospital.boot.domain.review.model.vo.Review">
+        INSERT INTO REVIEWS (
+            REVIEW_ID,
+            HOSPITAL_ID,
+            MEMBER_ID,
+            SCORE,
+            CONTENT,
+            CREATED_AT
+        ) VALUES (
+            SEQ_REVIEWS_NO.NEXTVAL,
+            #{hospitalId},
+            #{memberId},
+            #{score},
+            #{content},
+            SYSDATE
+        )
+    </insert>
+</mapper>
