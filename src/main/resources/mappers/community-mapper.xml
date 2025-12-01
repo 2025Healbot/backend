@@ -51,7 +51,7 @@
     </select>
 
     <insert id="insertPost"
-            parameterType="com.hospital.boot.domain.community.model.vo.Community">
+            parameterType="com.hospital.boot.domain.community.model.vo.CommunityPost">
         <selectKey keyProperty="postId" resultType="long" order="BEFORE">
             SELECT SEQ_COMMUNITY_POST.NEXTVAL FROM DUAL
         </selectKey>
@@ -74,6 +74,7 @@
         FROM COMMUNITY_COMMENT c
         JOIN MEMBER m ON c.MEMBER_ID = m.MEMBER_ID
         WHERE c.POST_ID = #{postId}
+          AND c.STATUS = 'ACTIVE'
         ORDER BY c.COMMENT_ID DESC
     </select>
 
@@ -83,9 +84,9 @@
             SELECT SEQ_COMMUNITY_COMMENT.NEXTVAL FROM DUAL
         </selectKey>
         INSERT INTO COMMUNITY_COMMENT
-            (COMMENT_ID, POST_ID, MEMBER_ID, CONTENT, CREATED_AT)
+            (COMMENT_ID, POST_ID, MEMBER_ID, CONTENT, STATUS, CREATED_AT)
         VALUES
-            (#{commentId}, #{postId}, #{memberId}, #{content}, SYSDATE)
+            (#{commentId}, #{postId}, #{memberId}, #{content}, 'ACTIVE', SYSDATE)
     </insert>
     
     <delete id="deletePost">
@@ -152,11 +153,12 @@
             r.REASON_TYPE AS reasonType,
             r.DETAIL AS detail,
             r.STATUS AS status,
-            r.PENALTY_REASON AS penaltyReason,
+            r.REPLY AS reply,
             r.CREATED_AT AS createdAt,
             p.TITLE AS postTitle,
             p.STATUS AS postStatus,
             c.CONTENT AS commentContent,
+            c.STATUS AS commentStatus,
             CASE
                 WHEN r.TARGET_TYPE = 'POST' THEN p.MEMBER_ID
                 WHEN r.TARGET_TYPE = 'COMMENT' THEN c.MEMBER_ID
@@ -187,11 +189,12 @@
             r.REASON_TYPE AS reasonType,
             r.DETAIL AS detail,
             r.STATUS AS status,
-            r.PENALTY_REASON AS penaltyReason,
+            r.REPLY AS reply,
             r.CREATED_AT AS createdAt,
             p.TITLE AS postTitle,
             p.STATUS AS postStatus,
             c.CONTENT AS commentContent,
+            c.STATUS AS commentStatus,
             CASE
                 WHEN r.TARGET_TYPE = 'POST' THEN p.MEMBER_ID
                 WHEN r.TARGET_TYPE = 'COMMENT' THEN c.MEMBER_ID
@@ -206,7 +209,13 @@
     <update id="updateReportStatus">
         UPDATE COMMUNITY_REPORT
         SET STATUS = #{status},
-            PENALTY_REASON = #{penaltyReason}
+            REPLY = #{reply}
+        WHERE REPORT_ID = #{reportId}
+    </update>
+
+    <update id="updateReply">
+        UPDATE COMMUNITY_REPORT
+        SET REPLY = #{reply}
         WHERE REPORT_ID = #{reportId}
     </update>
 
@@ -219,16 +228,27 @@
         UPDATE COMMUNITY_POST
         SET STATUS = CASE
             WHEN STATUS = 'HIDDEN' THEN 'ACTIVE'
-            ELSE 'HIDDEN'
+            WHEN STATUS = 'ACTIVE' THEN 'HIDDEN'
+            ELSE 'ACTIVE'
         END
         WHERE POST_ID = #{postId}
     </update>
-    
-    <!-- 내가 제재 받은 내역 (내 글/댓글이 신고되고 PENALTY_REASON 이 있는 것) -->
+
+    <update id="toggleCommentVisibility">
+        UPDATE COMMUNITY_COMMENT
+        SET STATUS = CASE
+            WHEN STATUS = 'HIDDEN' THEN 'ACTIVE'
+            WHEN STATUS = 'ACTIVE' THEN 'HIDDEN'
+            ELSE 'ACTIVE'
+        END
+        WHERE COMMENT_ID = #{commentId}
+    </update>
+
+    <!-- 내가 제재 받은 내역 (내 글/댓글이 신고되고 답변이 있는 것) -->
 	<select id="selectMyReceivedSanctions"
 	        parameterType="string"
 	        resultType="com.hospital.boot.app.community.dto.MySanctionDto">
-	
+
 	    SELECT
 	        r.REPORT_ID        AS reportId,
 	        r.TARGET_TYPE      AS targetType,
@@ -238,7 +258,7 @@
 	        r.REASON_TYPE      AS reasonType,
 	        r.DETAIL           AS detail,
 	        r.STATUS           AS status,
-	        r.PENALTY_REASON   AS penaltyReason,
+	        r.REPLY            AS reply,
 	        TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD HH24:MI') AS createdAt,
 	        CASE
 	            WHEN r.TARGET_TYPE = 'POST'
@@ -253,7 +273,7 @@
 	         LEFT JOIN COMMUNITY_COMMENT c
 	                ON r.COMMENT_ID = c.COMMENT_ID
 	    WHERE
-	        r.PENALTY_REASON IS NOT NULL
+	        r.REPLY IS NOT NULL
 	        AND (
 	              (r.TARGET_TYPE = 'POST'    AND p.MEMBER_ID = #{memberId})
 	           OR (r.TARGET_TYPE = 'COMMENT' AND c.MEMBER_ID = #{memberId})
@@ -261,11 +281,11 @@
 	    ORDER BY r.REPORT_ID DESC
 	</select>
 	
-	<!-- 내가 신고해서 제재까지 간 내역 (내가 신고자이고 PENALTY_REASON 이 있는 것) -->
+	<!-- 내가 신고해서 답변까지 받은 내역 (내가 신고자이고 답변이 있는 것) -->
 	<select id="selectMyReportedSanctions"
 	        parameterType="string"
 	        resultType="com.hospital.boot.app.community.dto.MySanctionDto">
-	
+
 	    SELECT
 	        r.REPORT_ID        AS reportId,
 	        r.TARGET_TYPE      AS targetType,
@@ -275,7 +295,7 @@
 	        r.REASON_TYPE      AS reasonType,
 	        r.DETAIL           AS detail,
 	        r.STATUS           AS status,
-	        r.PENALTY_REASON   AS penaltyReason,
+	        r.REPLY            AS reply,
 	        TO_CHAR(r.CREATED_AT, 'YYYY-MM-DD HH24:MI') AS createdAt,
 	        CASE
 	            WHEN r.TARGET_TYPE = 'POST'
@@ -291,11 +311,11 @@
 	                ON r.COMMENT_ID = c.COMMENT_ID
 	    WHERE
 	        r.REPORTER_ID  = #{memberId}
-	        AND r.PENALTY_REASON IS NOT NULL
+	        AND r.REPLY IS NOT NULL
 	    ORDER BY r.REPORT_ID DESC
 	</select>
-	
-	<!-- 내가 받은 제재 개수 -->
+
+	<!-- 내가 받은 답변 개수 -->
 	<select id="selectMySanctionCount"
 	        parameterType="string"
 	        resultType="int">
@@ -306,7 +326,7 @@
 	         LEFT JOIN COMMUNITY_COMMENT c
 	                ON r.COMMENT_ID = c.COMMENT_ID
 	    WHERE
-	        r.PENALTY_REASON IS NOT NULL
+	        r.REPLY IS NOT NULL
 	        AND (
 	              (r.TARGET_TYPE = 'POST'    AND p.MEMBER_ID = #{memberId})
 	           OR (r.TARGET_TYPE = 'COMMENT' AND c.MEMBER_ID = #{memberId})

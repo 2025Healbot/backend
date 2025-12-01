@@ -44,16 +44,16 @@ public class MemberController {
             response.setSocialId(socialId);
 
             if (member != null) {
-                // 로그인 성공 - 세션에 회원 ID 저장
+                // 로그인 성공 시 세션에 memberId 저장
                 session.setAttribute("memberId", member.getMemberId());
                 response.setSuccess(1);
 
-                // 접속 로그 저장 (관리자가 아닌 경우만)
+                // 회원 접속 로그 저장 (관리자가 아니면)
                 if (!"Y".equals(member.getAdminYn())) {
                     saveAccessLog(member.getMemberId(), request);
                 }
             } else {
-                // 회원가입 필요 - 소셜 ID만 반환
+                // 회원가입 필요 시 SocialId 반환
                 response.setSuccess(0);
             }
 
@@ -95,11 +95,11 @@ public class MemberController {
             LoginResponse response = new LoginResponse();
 
             if (member != null) {
-                // 로그인 성공 - 세션에 회원 ID 저장
+                // 로그인 성공 시 세션에 memberId 저장
                 session.setAttribute("memberId", member.getMemberId());
                 response.setSuccess(1);
 
-                // 접속 로그 저장 (관리자가 아닌 경우만)
+                // 회원 접속 로그 저장 (관리자가 아니면)
                 if (!"Y".equals(member.getAdminYn())) {
                     saveAccessLog(member.getMemberId(), request);
                 }
@@ -125,7 +125,7 @@ public class MemberController {
             String adminYn = "N"; // 기본값
             if (loggedIn) {
                 try {
-                    // 로그인 되어있으면 DB에서 회원 정보 조회하여 admin_YN 가져오기
+                    // 로그인이 되어있으면 DB에서 회원 정보를 조회하여 adminYn 가져오기
                     Member member = mService.findByMemberIdAny(memberId);
                     if (member != null) {
                         if (member.getAdminYn() != null) {

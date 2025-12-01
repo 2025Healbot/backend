@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommunityComment {
 
-    private Long commentId;   // COMMENT_ID
-    private Long postId;      // POST_ID
-    private String memberId;  // MEMBER_ID
-    private String content;   // CONTENT
-    private Date createdAt;   // CREATED_AT
-    private Date updatedAt;   // UPDATED_AT
+    private Long commentId;   // 커뮤니티 댓글ID
+    private Long postId;      // 커뮤니티 게시글ID
+    private String memberId;  // 회원ID
+    private String content;   // 댓글 내용
+    private Date createdAt;   // 등록일
+    private Date updatedAt;   // 수정일
 }

@@ -5,9 +5,10 @@ import java.util.Map;
 import java.util.List;
 
 public interface AccessLogService {
-    // 접속 로그 저장
+	
+    // 회원 접속 로그 저장 (AdminController)
     int saveAccessLog(AccessLog accessLog);
 
-    // 일별 로그인 횟수 조회 (최근 7일)
+    // 관리자 일별 로그인 횟수 조회 (최근 7일 기준) (AdminController)
     List<Map<String, Object>> getDailyLoginCount();
 }

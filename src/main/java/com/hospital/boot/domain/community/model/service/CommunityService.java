@@ -34,11 +34,15 @@ public interface CommunityService {
 
 	CommunityReportDto getReportDetail(Long reportId);
 
-	boolean updateReportStatus(Long reportId, String status, String penaltyReason);
+	boolean updateReportStatus(Long reportId, String status, String reply);
+
+	boolean updateReply(Long reportId, String reply);
 
 	boolean deleteReport(Long reportId);
 
 	boolean togglePostVisibility(Long postId);
+
+	boolean toggleCommentVisibility(Long commentId);
 
 	List<MySanctionDto> getMyReceivedSanctions(String memberId);
 
