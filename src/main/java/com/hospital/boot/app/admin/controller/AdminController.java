@@ -126,7 +126,7 @@ public class AdminController {
     public Map<String, Object> updateNotice(@PathVariable int noticeId, @RequestBody Notice notice) {
         Map<String, Object> response = new HashMap<>();
 
-        notice.setNoticeId(noticeId);
+        notice.setNoticeNo(noticeId);
         int result = nService.updateNotice(notice);
 
         if (result > 0) {
