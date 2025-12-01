@@ -208,7 +208,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Member findById(String memberId) {
         // 이미 있는 메서드 재활용 (로그인 아이디 기준 조회)
-        return mMapper.findByIdOnly(memberId);
+        return mMapper.findById(memberId);
     }
 
     @Override

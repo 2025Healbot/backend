@@ -71,4 +71,9 @@
         DELETE FROM MEMBER
         WHERE MEMBER_ID = #{memberId}
     </delete>
+
+    <select id="findById">
+        SELECT * FROM MEMBER
+        WHERE MEMBER_ID = #{memberId}
+    </select>
 </mapper>
