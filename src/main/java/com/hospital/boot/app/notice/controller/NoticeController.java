@@ -1,9 +1,11 @@
 package com.hospital.boot.app.notice.controller;
 
 import com.hospital.boot.domain.notice.model.service.NoticeService;
+import com.hospital.boot.domain.notice.model.vo.Notice;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -13,17 +15,19 @@ public class NoticeController {
 
     private final NoticeService nService;
 
-    /**
-     * 공지사항 조회수 증가
-     * @param noticeId 공지사항 ID
-     * @return 조회수 증가 성공 여부
-     */
-    @PostMapping("/{noticeId}/view")
-    public Map<String, Object> incrementNoticeView(@PathVariable int noticeId) {
+    // 공지사항 목록 조회
+    @GetMapping
+    public List<Notice> getAllNotices() {
+        return nService.getAllNotices();
+    }
+    
+    // 공지사항 조회수 증가
+    @PostMapping("/{noticeNo}/view")
+    public Map<String, Object> incrementNoticeView(@PathVariable int noticeNo) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            int result = nService.incrementViews(noticeId);
+            int result = nService.incrementViews(noticeNo);
 
             if (result > 0) {
                 response.put("success", true);
@@ -37,8 +41,6 @@ public class NoticeController {
             response.put("message", "조회수 증가 중 오류가 발생했습니다.");
             e.printStackTrace();
         }
-
         return response;
     }
-
 }

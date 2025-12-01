@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @ToString
 @NoArgsConstructor
 public class AccessLog {
-    private int logId;
-    private String memberId;
-    private String accessDate;
-    private String ipAddress;
-    private String userAgent;
+    private int logId; 			// 로그ID
+    private String memberId; 	// 회원ID
+    private String accessDate; 	// 접속일
+    private String ipAddress; 	// 클라이언트 주소
+    private String userAgent;	// 브라우저 정보
 }

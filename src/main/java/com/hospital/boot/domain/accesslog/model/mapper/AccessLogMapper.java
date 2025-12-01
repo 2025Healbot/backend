@@ -7,9 +7,10 @@ import java.util.List;
 
 @Mapper
 public interface AccessLogMapper {
-    // 접속 로그 저장
+	
+    // 회원 접속 로그 저장
     int insertAccessLog(AccessLog accessLog);
 
-    // 일별 로그인 횟수 조회 (최근 7일)
+    // 관리자 일별 로그인 횟수 조회 (최근 7일 기준)
     List<Map<String, Object>> getDailyLoginCount();
 }

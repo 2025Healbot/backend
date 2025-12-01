@@ -30,7 +30,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public Long writePost(String memberId, CommunityPostWriteRequest req) {
-        Community post = new Community();
+        CommunityPost post = new CommunityPost();
         post.setMemberId(memberId);
         post.setCategory(req.getCategory());
         post.setTitle(req.getTitle());
@@ -79,7 +79,7 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	public boolean updatePost(Long postId, CommunityPostWriteRequest req) {
-		Community post = new Community();
+		CommunityPost post = new CommunityPost();
 		post.setPostId(postId);
 		post.setTitle(req.getTitle());
 		post.setContent(req.getContent());
@@ -136,8 +136,14 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	public boolean updateReportStatus(Long reportId, String status, String penaltyReason) {
-		int affected = cMapper.updateReportStatus(reportId, status, penaltyReason);
+	public boolean updateReportStatus(Long reportId, String status, String reply) {
+		int affected = cMapper.updateReportStatus(reportId, status, reply);
+		return affected > 0;
+	}
+
+	@Override
+	public boolean updateReply(Long reportId, String reply) {
+		int affected = cMapper.updateReply(reportId, reply);
 		return affected > 0;
 	}
 
@@ -165,6 +171,12 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public boolean togglePostVisibility(Long postId) {
 		int affected = cMapper.togglePostVisibility(postId);
+		return affected > 0;
+	}
+
+	@Override
+	public boolean toggleCommentVisibility(Long commentId) {
+		int affected = cMapper.toggleCommentVisibility(commentId);
 		return affected > 0;
 	}
 

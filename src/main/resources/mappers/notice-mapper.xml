@@ -4,67 +4,94 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hospital.boot.domain.notice.model.mapper.NoticeMapper">
 
-    <!-- 전체 공지사항 목록 조회 -->
+    <!-- 공지사항 목록 조회 -->
     <select id="getAllNotices" resultType="com.hospital.boot.domain.notice.model.vo.Notice">
         SELECT
-            NOTICE_NO as noticeId,
-            NOTICE_SUBJECT as title,
-            NOTICE_CONTENT as content,
-            CATEGORY as category,
+            NOTICE_NO as noticeNo,
+            MEMBER_ID as memberId,
+            NOTICE_SUBJECT as noticeSubject,
+            NOTICE_CONTENT as noticeContent,
+            NOTICE_WRITER as noticeWriter,
+            TO_CHAR(WRITE_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') as writeDate,
             VIEW_COUNT as viewCount,
-            TO_CHAR(WRITE_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') as createdAt,
-            TO_CHAR(WRITE_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') as updatedAt
+            ATTACHMENT_NAME as attachmentName,
+            ATTACHMENT_PATH as attachmentPath,
+            TO_CHAR(ATTACHMENT_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') as attachmentDate,
+            CATEGORY as category,
+            TO_CHAR(CREATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') as createdAt,
+            TO_CHAR(UPDATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') as updatedAt
+        
         FROM NOTICE
+        
         ORDER BY WRITE_DATE DESC
     </select>
+    
+    <!-- 공지사항 조회수 증가 -->
+    <update id="incrementViews">
+        UPDATE NOTICE
+        
+        SET VIEW_COUNT = VIEW_COUNT + 1
+        
+        WHERE NOTICE_NO = #{noticeNo}
+    </update>
 
-    <!-- 공지사항 생성 -->
+    <!-- 관리자 공지사항 등록 -->
     <insert id="insertNotice" parameterType="com.hospital.boot.domain.notice.model.vo.Notice">
-        <selectKey keyProperty="noticeId" resultType="int" order="BEFORE">
+        <selectKey keyProperty="noticeNo" resultType="int" order="BEFORE">
             SELECT NVL(MAX(NOTICE_NO), 0) + 1 FROM NOTICE
         </selectKey>
         INSERT INTO NOTICE (
             NOTICE_NO,
-            USER_ID,
+            MEMBER_ID,
             NOTICE_SUBJECT,
             NOTICE_CONTENT,
             NOTICE_WRITER,
             WRITE_DATE,
             VIEW_COUNT,
-            CATEGORY
+            ATTACHMENT_NAME,
+            ATTACHMENT_PATH,
+            ATTACHMENT_DATE,
+            CATEGORY,
+            CREATED_AT,
+            UPDATED_AT
         ) VALUES (
-            #{noticeId},
-            'admin',
-            #{title},
-            #{content},
-            'ADMIN',
+            #{noticeNo},
+            #{memberId},
+            #{noticeSubject},
+            #{noticeContent},
+            #{noticeWriter},
             SYSDATE,
             0,
-            #{category}
+            #{attachmentName},
+            #{attachmentPath},
+            #{attachmentDate},
+            #{category},
+            SYSDATE,
+            SYSDATE
         )
     </insert>
 
-    <!-- 공지사항 수정 -->
+    <!-- 관리자 공지사항 수정 -->
     <update id="updateNotice" parameterType="com.hospital.boot.domain.notice.model.vo.Notice">
         UPDATE NOTICE
+        
         SET
-            NOTICE_SUBJECT = #{title},
-            NOTICE_CONTENT = #{content},
-            CATEGORY = #{category}
-        WHERE NOTICE_NO = #{noticeId}
+            NOTICE_SUBJECT = #{noticeSubject},
+            NOTICE_CONTENT = #{noticeContent},
+            CATEGORY = #{category},
+            ATTACHMENT_NAME = #{attachmentName},
+            ATTACHMENT_PATH = #{attachmentPath},
+            ATTACHMENT_DATE = #{attachmentDate},
+            UPDATED_AT = SYSDATE
+        
+        WHERE NOTICE_NO = #{noticeNo}
     </update>
 
-    <!-- 공지사항 삭제 -->
+    <!-- 관리자 공지사항 삭제 -->
     <delete id="deleteNotice">
         DELETE FROM NOTICE
-        WHERE NOTICE_NO = #{noticeId}
+        
+        WHERE NOTICE_NO = #{noticeNo}
     </delete>
-
-    <!-- 공지사항 조회수 증가 -->
-    <update id="incrementViews">
-        UPDATE NOTICE
-        SET VIEW_COUNT = VIEW_COUNT + 1
-        WHERE NOTICE_NO = #{noticeId}
-    </update>
 
 </mapper>

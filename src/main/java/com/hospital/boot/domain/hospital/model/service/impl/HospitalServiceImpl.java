@@ -29,27 +29,31 @@ public class HospitalServiceImpl implements HospitalService {
         return hMapper.findHospitalsByBounds(swLat, swLng, neLat, neLng, emergencyOnly);
     }
 
-    // 관리자용 CRUD 구현
+    // 관리자 병원 목록 조회 (HospitalService)
     @Override
     public List<Hospital> getAllHospitals() {
         return hMapper.getAllHospitals();
     }
 
+    // 관리자 병원 등록 (HostpitalService)
     @Override
     public void insertHospital(Hospital hospital) {
         hMapper.insertHospital(hospital);
     }
 
+    // 관리자 병원 수정 (HospitalService)
     @Override
     public void updateHospital(Hospital hospital) {
         hMapper.updateHospital(hospital);
     }
 
+    // 관리자 병원 삭제 (HospitalService)
     @Override
     public void deleteHospital(String hospitalId) {
         hMapper.deleteHospital(hospitalId);
     }
 
+    // 관리자 병원 진료과 목록 조회 (HospitalService)
     @Override
     public List<String> getDepartmentsByHospitalId(String hospitalId) {
         return hMapper.getDepartmentsByHospitalId(hospitalId);

@@ -18,7 +18,7 @@ public interface CommunityMapper {
 
     CommunityPostDto selectPostDetail(@Param("postId") Long postId);
 
-    int insertPost(Community post);
+    int insertPost(CommunityPost post);
 
     List<CommunityCommentDto> selectCommentList(@Param("postId") Long postId);
 
@@ -32,7 +32,7 @@ public interface CommunityMapper {
 
     int increaseViews(Long postId);
 
-    int updatePost(Community post);
+    int updatePost(CommunityPost post);
 
     int adminDeletePost(@Param("postId") Long postId);
 
@@ -47,12 +47,18 @@ public interface CommunityMapper {
     int updateReportStatus(
             @Param("reportId") Long reportId,
             @Param("status") String status,
-            @Param("penaltyReason") String penaltyReason);
+            @Param("reply") String reply);
+
+    int updateReply(
+            @Param("reportId") Long reportId,
+            @Param("reply") String reply);
 
     int deleteReport(@Param("reportId") Long reportId);
 
     int togglePostVisibility(@Param("postId") Long postId);
-    
+
+    int toggleCommentVisibility(@Param("commentId") Long commentId);
+
     /** 내가 제재 받은 내역 (내 글/댓글이 신고되어 제재된 것) */
     List<MySanctionDto> selectMyReceivedSanctions(@Param("memberId") String memberId);
 

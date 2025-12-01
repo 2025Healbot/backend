@@ -254,7 +254,7 @@ public class CommunityController {
     }
 
     // =======================
-    // 📌 제재사유 입력 (자동으로 처리완료 상태로 변경)
+    // 📌 제재사유 입력
     // =======================
     @PutMapping("/reports/{reportId}/penalty")
     public ResponseEntity<?> submitPenalty(
@@ -268,17 +268,17 @@ public class CommunityController {
                     .body(Map.of("success", false, "message", "로그인이 필요합니다."));
         }
 
-        String penaltyReason = body.get("penaltyReason");
-        if (penaltyReason == null || penaltyReason.trim().isEmpty()) {
+        String reply = body.get("reply");
+        if (reply == null || reply.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("success", false, "message", "제재사유를 입력해주세요."));
+                    .body(Map.of("success", false, "message", "답변을 입력해주세요."));
         }
 
-        // 제재사유 입력 시 자동으로 RESOLVED 상태로 변경
-        boolean updated = cService.updateReportStatus(reportId, "RESOLVED", penaltyReason);
+        // 답변만 업데이트 (상태 변경 안 함)
+        boolean updated = cService.updateReply(reportId, reply);
         if (!updated) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "message", "제재사유 등록에 실패했습니다."));
+                    .body(Map.of("success", false, "message", "답변 등록에 실패했습니다."));
         }
 
         return ResponseEntity.ok(Map.of("success", true));
@@ -325,6 +325,29 @@ public class CommunityController {
         if (!toggled) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "게시글 상태 변경에 실패했습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    // =======================
+    // 📌 댓글 숨김/해제 토글
+    // =======================
+    @PutMapping("/comments/{commentId}/toggle-visibility")
+    public ResponseEntity<?> toggleCommentVisibility(
+            @PathVariable Long commentId,
+            HttpSession session) {
+
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        boolean toggled = cService.toggleCommentVisibility(commentId);
+        if (!toggled) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "댓글 상태 변경에 실패했습니다."));
         }
 
         return ResponseEntity.ok(Map.of("success", true));

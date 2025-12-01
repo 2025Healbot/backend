@@ -13,28 +13,33 @@ public class NoticeServiceImpl implements NoticeService {
 
     private final NoticeMapper nMapper;
 
+    // 공지사항 목록 조회 (NoticeService)
     @Override
     public List<Notice> getAllNotices() {
         return nMapper.getAllNotices();
     }
 
+    // 공지사항 조회수 증가 (NoticeService)
     @Override
+	public int incrementViews(int noticeNo) {
+	    return nMapper.incrementViews(noticeNo);
+	}
+
+    // 관리자 공지사항 등록 (NoticeService)
+	@Override
     public int createNotice(Notice notice) {
         return nMapper.insertNotice(notice);
     }
 
+	// 관리자 공지사항 수정 (NoticeService)
     @Override
     public int updateNotice(Notice notice) {
         return nMapper.updateNotice(notice);
     }
 
+    // 관리자 공지사항 삭제 (NoticeService)
     @Override
-    public int deleteNotice(int noticeId) {
-        return nMapper.deleteNotice(noticeId);
-    }
-
-    @Override
-    public int incrementViews(int noticeId) {
-        return nMapper.incrementViews(noticeId);
+    public int deleteNotice(int noticeNo) {
+        return nMapper.deleteNotice(noticeNo);
     }
 }
