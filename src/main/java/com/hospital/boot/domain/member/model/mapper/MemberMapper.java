@@ -28,4 +28,6 @@ public interface MemberMapper {
 	void updateProfile(Member member);
 
 	int deleteMember(@Param("memberId") String memberId);
+
+    Member findById(String memberId);
 }
