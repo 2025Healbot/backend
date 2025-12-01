@@ -26,4 +26,13 @@ public interface DiseasesService {
     int removeFeaturedDisease(int featuredDiseasesNo);
 
     int updateFeaturedDiseasesOrder(List<FeaturedDiseases> list);
+
+    // Disease CRUD
+    int addDisease(Diseases disease);
+
+    int updateDisease(Diseases disease);
+
+    int deleteDisease(int diseaseNo);
+
+    Diseases findByDiseaseNo(int diseaseNo);
 }

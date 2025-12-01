@@ -16,6 +16,7 @@
             GROUP BY DISEASE_NAME
         )
         SELECT
+            d.DISEASE_NO AS "diseaseNo",
             d.DISEASE_NAME AS "질환명",
             LISTAGG(dd.DEPARTMENT_NAME, ', ')
                 WITHIN GROUP (ORDER BY dd.DEPARTMENT_NAME) AS "진료과",
@@ -27,7 +28,7 @@
             LEFT JOIN DISEASE_DEPARTMENTS dd ON d.DISEASE_NAME = dd.DISEASE_NAME
             LEFT JOIN AllSymptoms asym ON d.DISEASE_NAME = asym.DISEASE_NAME
         WHERE d.DISEASE_NAME = #{diseaseName}
-        GROUP BY d.DISEASE_NAME, d.TOTAL_PATIENTS, d.IMAGE_URL, d.DESCRIPTION, asym.all_symptoms
+        GROUP BY d.DISEASE_NO, d.DISEASE_NAME, d.TOTAL_PATIENTS, d.IMAGE_URL, d.DESCRIPTION, asym.all_symptoms
     </select>
 
     <select id="allSymptoms" resultType="String">
@@ -127,6 +128,7 @@
             GROUP BY DISEASE_NAME
         )
         SELECT
+            d.DISEASE_NO AS "diseaseNo",
             d.DISEASE_NAME AS "질환명",
             LISTAGG(dd.DEPARTMENT_NAME, ', ')
                 WITHIN GROUP (ORDER BY dd.DEPARTMENT_NAME) AS "진료과",
@@ -137,7 +139,7 @@
         FROM DISEASES d
             LEFT JOIN DISEASE_DEPARTMENTS dd ON d.DISEASE_NAME = dd.DISEASE_NAME
             LEFT JOIN AllSymptoms asym ON d.DISEASE_NAME = asym.DISEASE_NAME
-        GROUP BY d.DISEASE_NAME, d.TOTAL_PATIENTS, d.IMAGE_URL, d.DESCRIPTION, asym.all_symptoms
+        GROUP BY d.DISEASE_NO, d.DISEASE_NAME, d.TOTAL_PATIENTS, d.IMAGE_URL, d.DESCRIPTION, asym.all_symptoms
         ORDER BY d.TOTAL_PATIENTS DESC NULLS LAST
     </select>
     <!-- Featured Diseases -->
@@ -173,4 +175,45 @@
         SET DISPLAY_ORDER = #{item.displayOrder}
         WHERE FEATURED_DISEASES_NO = #{item.featuredDiseasesNo}
     </update>
+
+    <!-- Disease CRUD -->
+    <select id="findByDiseaseNo" resultType="com.hospital.boot.domain.diseases.model.vo.Diseases">
+        SELECT
+            DISEASE_NO as diseaseNo,
+            DISEASE_NAME as diseaseName,
+            IMAGE_URL as imageUrl,
+            DESCRIPTION as description,
+            TOTAL_PATIENTS as totalPatients
+        FROM DISEASES
+        WHERE DISEASE_NO = #{diseaseNo}
+    </select>
+
+    <insert id="insertDisease" parameterType="com.hospital.boot.domain.diseases.model.vo.Diseases">
+        INSERT INTO DISEASES (
+            DISEASE_NO,
+            DISEASE_NAME,
+            IMAGE_URL,
+            DESCRIPTION
+        ) VALUES (
+            DISEASES_SEQ.NEXTVAL,
+            #{diseaseName},
+            #{imageUrl},
+            #{description}
+        )
+    </insert>
+
+    <update id="updateDisease" parameterType="com.hospital.boot.domain.diseases.model.vo.Diseases">
+        UPDATE DISEASES
+        SET DISEASE_NAME = #{diseaseName},
+            DESCRIPTION = #{description}
+            <if test="imageUrl != null and imageUrl != ''">
+                , IMAGE_URL = #{imageUrl}
+            </if>
+        WHERE DISEASE_NO = #{diseaseNo}
+    </update>
+
+    <delete id="deleteDisease">
+        DELETE FROM DISEASES
+        WHERE DISEASE_NO = #{diseaseNo}
+    </delete>
 </mapper>

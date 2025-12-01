@@ -7,7 +7,11 @@ import com.hospital.boot.domain.notice.model.vo.Notice;
 import com.hospital.boot.domain.hospital.model.service.HospitalService;
 import com.hospital.boot.domain.hospital.model.vo.Hospital;
 import com.hospital.boot.domain.accesslog.model.service.AccessLogService;
+import com.hospital.boot.domain.diseases.model.service.DiseasesService;
+import com.hospital.boot.domain.diseases.model.vo.Diseases;
+import com.hospital.boot.common.util.CloudflareR2Service;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.HashMap;
@@ -22,6 +26,8 @@ public class AdminController {
     private final NoticeService nService;
     private final HospitalService hService;
     private final AccessLogService alService;
+    private final DiseasesService dService;
+    private final CloudflareR2Service r2Service;
 
     /**
      * 전체 회원 목록 조회
@@ -252,6 +258,159 @@ public class AdminController {
     @GetMapping("/stats/daily-login")
     public List<Map<String, Object>> getDailyLoginCount() {
         return alService.getDailyLoginCount();
+    }
+
+    /**
+     * 전체 질환 목록 조회
+     * @return 질환 목록
+     */
+    @GetMapping("/diseases")
+    public List<Map<String, Object>> getAllDiseases() {
+        return dService.findAllDiseases();
+    }
+
+    /**
+     * 질환 추가 (이미지 포함)
+     * @param diseaseName 질환명
+     * @param description 설명
+     * @param image 이미지 파일
+     * @return 추가 성공 여부
+     */
+    @PostMapping("/diseases")
+    public Map<String, Object> createDisease(
+            @RequestParam("diseaseName") String diseaseName,
+            @RequestParam("description") String description,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Diseases disease = new Diseases();
+            disease.setDiseaseName(diseaseName);
+            disease.setDescription(description);
+
+            // 이미지가 있으면 Cloudflare R2에 업로드
+            if (image != null && !image.isEmpty()) {
+                String sanitizedDiseaseName = diseaseName.replaceAll("[^a-zA-Z0-9가-힣_-]", "_");
+                String extension = "";
+                String originalFilename = image.getOriginalFilename();
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                }
+                String fileName = sanitizedDiseaseName + extension;
+                String imageUrl = r2Service.uploadFile(image, "__healbot__/disease/img", fileName);
+                disease.setImageUrl(imageUrl);
+            }
+
+            int result = dService.addDisease(disease);
+
+            if (result > 0) {
+                response.put("success", true);
+                response.put("message", "질환이 추가되었습니다.");
+            } else {
+                response.put("success", false);
+                response.put("message", "질환 추가에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "질환 추가 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * 질환 수정 (이미지 포함)
+     * @param diseaseNo 질환 번호
+     * @param diseaseName 질환명
+     * @param description 설명
+     * @param image 이미지 파일 (선택)
+     * @return 수정 성공 여부
+     */
+    @PutMapping("/diseases/{diseaseNo}")
+    public Map<String, Object> updateDisease(
+            @PathVariable int diseaseNo,
+            @RequestParam("diseaseName") String diseaseName,
+            @RequestParam("description") String description,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Diseases disease = new Diseases();
+            disease.setDiseaseNo(diseaseNo);
+            disease.setDiseaseName(diseaseName);
+            disease.setDescription(description);
+
+            // 기존 질환 정보 조회
+            Map<String, Object> existingDisease = dService.findByName(diseaseName);
+
+            // 이미지가 있으면 기존 이미지 삭제 후 새 이미지 업로드
+            if (image != null && !image.isEmpty()) {
+                // 기존 이미지 삭제
+                if (existingDisease != null && existingDisease.get("이미지") != null) {
+                    String oldImageUrl = (String) existingDisease.get("이미지");
+                    r2Service.deleteFile(oldImageUrl);
+                }
+
+                // 새 이미지 업로드
+                String sanitizedDiseaseName = diseaseName.replaceAll("[^a-zA-Z0-9가-힣_-]", "_");
+                String extension = "";
+                String originalFilename = image.getOriginalFilename();
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                }
+                String fileName = sanitizedDiseaseName + extension;
+                String imageUrl = r2Service.uploadFile(image, "__healbot__/disease/img", fileName);
+                disease.setImageUrl(imageUrl);
+            }
+
+            int result = dService.updateDisease(disease);
+
+            if (result > 0) {
+                response.put("success", true);
+                response.put("message", "질환이 수정되었습니다.");
+            } else {
+                response.put("success", false);
+                response.put("message", "질환 수정에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "질환 수정 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return response;
+    }
+
+    /**
+     * 질환 삭제
+     * @param diseaseNo 삭제할 질환 번호
+     * @return 삭제 성공 여부
+     */
+    @DeleteMapping("/diseases/{diseaseNo}")
+    public Map<String, Object> deleteDisease(@PathVariable int diseaseNo) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // 이미지 URL 조회 후 삭제
+            Diseases disease = dService.findByDiseaseNo(diseaseNo);
+            if (disease != null && disease.getImageUrl() != null) {
+                r2Service.deleteFile(disease.getImageUrl());
+            }
+
+            int result = dService.deleteDisease(diseaseNo);
+
+            if (result > 0) {
+                response.put("success", true);
+                response.put("message", "질환이 삭제되었습니다.");
+            } else {
+                response.put("success", false);
+                response.put("message", "질환 삭제에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "질환 삭제 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return response;
     }
 
 }

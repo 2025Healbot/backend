@@ -29,4 +29,13 @@ public interface DiseasesMapper {
     int deleteFeaturedDisease(int featuredDiseasesNo);
 
     int updateFeaturedDiseaseOrder(@Param("item") FeaturedDiseases item);
+
+    // Disease CRUD
+    int insertDisease(Diseases disease);
+
+    int updateDisease(Diseases disease);
+
+    int deleteDisease(int diseaseNo);
+
+    Diseases findByDiseaseNo(int diseaseNo);
 }
