@@ -13,6 +13,7 @@
         <result property="content"    column="CONTENT"/>
         <result property="createdAt"  column="CREATED_AT"/>
         <result property="writerName" column="USER_NAME"/>
+        <result property="hospitalName" column="HOSPITAL_NAME"/>
     </resultMap>
 
     <!-- 리뷰 목록 -->

@@ -23,6 +23,14 @@
         FROM   HOSPITALS
         WHERE  HOSPITAL_ID = #{hospitalId}
     </select>
+    
+    <!-- ✅ 전체 병원 목록 -->
+    <select id="findAllHospitalsForOCR" resultMap="HospitalOcrInfoMap">
+        SELECT HOSPITAL_ID,
+               HOSPITAL_NAME,
+               ADDRESS
+        FROM HOSPITALS
+    </select>
 
     <!-- 새로 추가: 병원명 키워드로 병원 찾기 -->
     <select id="searchHospitalByNameForOCR"

@@ -98,4 +98,11 @@ public class ReviewController {
                     .body(new CommonResponse(false, "리뷰 등록 중 오류가 발생했습니다."));
         }
     }
+    
+    @GetMapping("/reviews/all")
+    public ReviewListResponse getAllReviews(
+            @RequestParam(defaultValue = "latest") String sort,
+            @RequestParam(defaultValue = "all") String rating) {
+        return rService.getAllReviews(sort, rating);
+    }
 }

@@ -11,4 +11,6 @@ import org.apache.ibatis.annotations.Param;
 public interface OCRMapper {
 	// ✅ OCR 텍스트에서 찾은 병원명으로 검색
 	List<HospitalOcrInfo> searchHospitalByNameForOCR(@Param("nameKeyword") String nameKeyword);
+	// 전체 병원 목록
+	List<HospitalOcrInfo> findAllHospitalsForOCR();
 }

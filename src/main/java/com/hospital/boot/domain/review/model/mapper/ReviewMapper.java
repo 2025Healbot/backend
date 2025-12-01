@@ -16,6 +16,9 @@ public interface ReviewMapper {
             @Param("sort") String sort,
             @Param("scoreFilter") Integer scoreFilter
     );
+    
+    List<Review> findAllReviews(@Param("sort") String sort,
+            @Param("scoreFilter") Integer scoreFilter);
 
     Double getAvgScore(@Param("hospitalId") String hospitalId);
 

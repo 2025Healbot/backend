@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.hospital.boot.app.review.dto.ReviewListResponse;
 import com.hospital.boot.domain.review.model.mapper.ReviewMapper;
 import com.hospital.boot.domain.review.model.service.ReviewService;
 import com.hospital.boot.domain.review.model.vo.Review;
@@ -51,4 +52,19 @@ public class ReviewServiceImpl implements ReviewService {
     public int insertReview(Review review) {
         return rMapper.insertReview(review);
     }
+
+	@Override
+	public ReviewListResponse getAllReviews(String sort, String rating) {
+		Integer scoreFilter = null;
+	    if (!"all".equals(rating)) {
+	        scoreFilter = Integer.valueOf(rating);
+	    }
+
+	    List<Review> list = rMapper.findAllReviews(sort, scoreFilter);
+
+	    ReviewListResponse res = new ReviewListResponse();
+	    res.setReviewList(list);
+	    // 전체 평균, 전체 개수 등 넣고 싶으면 여기서 계산
+	    return res;
+	}
 }
