@@ -59,12 +59,10 @@ public class OcrController {
 
     // ===== OCR 텍스트로 병원 인증 =====
     @PostMapping("/verifyReceipt")
-    public ResponseEntity<OcrVerifyResponse> verifyReceipt(@RequestBody OcrVerifyRequest request) {
+    public ResponseEntity<OcrVerifyResponse> verifyReceipt(
+            @RequestBody OcrVerifyRequest request) {
 
-        OcrVerifyResponse result = ocrService.verifyReceipt(
-                request.getHospitalId(),
-                request.getOcrText()
-        );
+        OcrVerifyResponse result = ocrService.verifyReceiptByText(request.getOcrText());
         return ResponseEntity.ok(result);
     }
 

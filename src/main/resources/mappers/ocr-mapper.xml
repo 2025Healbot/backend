@@ -1,19 +1,38 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hospital.boot.domain.ocr.model.mapper.OCRMapper">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-    <resultMap id="HospitalOcrInfoMap" type="com.hospital.boot.app.ocr.dto.HospitalOcrInfo">
+<!-- ✅ 인터페이스 패키지와 100% 동일하게 -->
+<mapper namespace="com.hospital.boot.app.ocr.mapper.OCRMapper">
+
+    <resultMap id="HospitalOcrInfoMap"
+               type="com.hospital.boot.app.ocr.dto.HospitalOcrInfo">
         <id     property="hospitalId"   column="HOSPITAL_ID"/>
         <result property="hospitalName" column="HOSPITAL_NAME"/>
         <result property="address"      column="ADDRESS"/>
     </resultMap>
 
-    <select id="findHospitalForOCR" resultMap="HospitalOcrInfoMap">
-        SELECT HOSPITAL_ID, HOSPITAL_NAME, ADDRESS
+    <!-- 기존: ID로 직접 찾는 쿼리 (필요하면 유지) -->
+    <select id="findHospitalForOCR"
+            parameterType="string"
+            resultMap="HospitalOcrInfoMap">
+        SELECT HOSPITAL_ID,
+               HOSPITAL_NAME,
+               ADDRESS
         FROM   HOSPITALS
         WHERE  HOSPITAL_ID = #{hospitalId}
     </select>
 
+    <!-- 새로 추가: 병원명 키워드로 병원 찾기 -->
+    <select id="searchHospitalByNameForOCR"
+            parameterType="string"
+            resultMap="HospitalOcrInfoMap">
+        SELECT HOSPITAL_ID,
+               HOSPITAL_NAME,
+               ADDRESS
+        FROM   HOSPITALS
+        WHERE REPLACE(HOSPITAL_NAME, ' ', '')
+              LIKE '%' || REPLACE(#{nameKeyword}, ' ', '') || '%'
+    </select>
 </mapper>

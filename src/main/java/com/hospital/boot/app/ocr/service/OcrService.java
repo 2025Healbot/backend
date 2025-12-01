@@ -1,9 +1,12 @@
 package com.hospital.boot.app.ocr.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hospital.boot.app.ocr.dto.*;
+import com.hospital.boot.app.ocr.dto.HospitalOcrInfo;
+import com.hospital.boot.app.ocr.dto.OcrRequest;
+import com.hospital.boot.app.ocr.dto.OcrResponse;
+import com.hospital.boot.app.ocr.dto.OcrVerifyResponse;
+import com.hospital.boot.app.ocr.dto.OcrImageInfo;
 import com.hospital.boot.app.ocr.mapper.OCRMapper;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -56,9 +59,14 @@ public class OcrService {
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("message", messageJson)
-                .addFormDataPart("file", originalFilename,
-                        RequestBody.create(imageFile.getBytes(),
-                                MediaType.parse(imageFile.getContentType())))
+                .addFormDataPart(
+                        "file",
+                        originalFilename,
+                        RequestBody.create(
+                                imageFile.getBytes(),
+                                MediaType.parse(imageFile.getContentType())
+                        )
+                )
                 .build();
 
         Request request = new Request.Builder()
@@ -85,42 +93,130 @@ public class OcrService {
         return filename.substring(lastDotIndex + 1).toLowerCase();
     }
 
-    // ===== 2) 병원 인증 =====
-    public OcrVerifyResponse verifyReceipt(String hospitalId, String ocrText) {
+    // ===== 2) OCR 텍스트만으로 병원 찾기 =====
+    public OcrVerifyResponse verifyReceiptByText(String ocrText) {
 
-        if (hospitalId == null || hospitalId.trim().isEmpty()) {
-            return new OcrVerifyResponse(false, false,
-                    "병원 ID가 없습니다.", null, null);
-        }
         if (ocrText == null || ocrText.trim().isEmpty()) {
             return new OcrVerifyResponse(false, false,
                     "추출된 텍스트가 비어 있습니다.", null, null);
         }
 
-        HospitalOcrInfo info = ocrMapper.findHospitalForOCR(hospitalId);
-        if (info == null) {
+        // 1) 병원명 들어있을 법한 줄 먼저 찾기
+        String[] lines = ocrText.split("\\r?\\n");
+        String hospitalLine = null;
+
+        for (String line : lines) {
+            if (line == null) continue;
+            String t = line.trim();
+            if (t.isEmpty()) continue;
+
+            // 병원 관련 키워드
+            if (t.contains("병원") || t.contains("의원") ||
+                t.contains("치과") || t.contains("한의원")) {
+                hospitalLine = t;
+                break;
+            }
+        }
+
+        if (hospitalLine == null) {
+            return new OcrVerifyResponse(false, false,
+                    "영수증에서 병원명을 찾지 못했습니다.", null, null);
+        }
+
+        // 2) 특수문자 제거 후 키워드 추출
+        String keyword = hospitalLine.replaceAll("[^0-9a-zA-Z가-힣]", "");
+        log.info("[OCR VERIFY] hospitalLine={}, keyword={}", hospitalLine, keyword);
+
+        // 3) DB에서 병원명으로 병원 여러 개 찾기
+        java.util.List<HospitalOcrInfo> candidates =
+                ocrMapper.searchHospitalByNameForOCR(keyword);
+
+        if (candidates == null || candidates.isEmpty()) {
             return new OcrVerifyResponse(false, false,
                     "해당 병원을 찾을 수 없습니다.", null, null);
         }
 
-        // 공백/줄바꿈 제거 후 비교
-        String normalizedText   = ocrText.replaceAll("\\s+", "");
-        String nameNorm         = info.getHospitalName().replaceAll("\\s+", "");
-        String addrNorm         = info.getAddress() != null
-                ? info.getAddress().replaceAll("\\s+", "")
-                : "";
+        // 4) 정규화 텍스트 준비
+        String normText = normalize(ocrText);
 
-        boolean nameMatch = normalizedText.contains(nameNorm);
-        boolean addrMatch = addrNorm.isEmpty() || normalizedText.contains(addrNorm);
+        HospitalOcrInfo best = null;
+        int bestScore = -1;
 
-        if (nameMatch && addrMatch) {
-            return new OcrVerifyResponse(true, true,
-                    "영수증 인증이 완료되었습니다.",
-                    info.getHospitalId(), info.getHospitalName());
-        } else {
-            return new OcrVerifyResponse(true, false,
-                    "영수증의 병원명/주소가 병원 정보와 일치하지 않습니다.",
-                    info.getHospitalId(), info.getHospitalName());
+        for (HospitalOcrInfo info : candidates) {
+            if (info == null) continue;
+
+            String rawName = info.getHospitalName() != null ? info.getHospitalName() : "";
+            String mainName = rawName.split("[\\(\\[]")[0]; // "푸른치과의원(노원점)" -> "푸른치과의원"
+            String normName = normalize(mainName);
+            String normAddrFull = normalize(info.getAddress());
+
+            boolean nameMatch = !normName.isEmpty() && normText.contains(normName);
+            int addrScore = calcAddressMatchScore(info.getAddress(), normText);
+
+            // 점수: 이름매칭되면 +10, 주소 토큰 매칭 수를 더함
+            int score = (nameMatch ? 10 : 0) + addrScore;
+
+            log.info("[OCR VERIFY] candidate id={}, name={}, addr={}, nameMatch={}, addrScore={}, totalScore={}",
+                    info.getHospitalId(), rawName, info.getAddress(), nameMatch, addrScore, score);
+
+            if (score > bestScore) {
+                bestScore = score;
+                best = info;
+            }
         }
+
+        // 5) 최종 판단
+        if (best == null || bestScore <= 0) {
+            return new OcrVerifyResponse(
+                    true,
+                    false,
+                    "영수증의 병원명/주소가 병원 정보와 충분히 일치하지 않습니다.",
+                    null,
+                    null
+            );
+        }
+
+        return new OcrVerifyResponse(
+                true,
+                true,
+                "영수증 인증이 완료되었습니다.",
+                best.getHospitalId(),
+                best.getHospitalName()
+        );
+    }
+
+    // ===== 헬퍼들 =====
+
+    /**
+     * 한글/영문/숫자만 남기고 소문자 + 공백/특수문자 제거
+     */
+    private String normalize(String s) {
+        if (s == null) return "";
+        return s.toLowerCase()
+                .replaceAll("\\s+", "")
+                .replaceAll("[^0-9a-z가-힣]", "");
+    }
+
+    /**
+     * 주소를 공백/쉼표/괄호 등으로 나눠서,
+     * 길이 2 이상 토큰이 OCR 텍스트에 몇 개나 포함되는지 계산
+     */
+    private int calcAddressMatchScore(String address, String normText) {
+        if (address == null || address.isEmpty()) return 0;
+
+        String[] rawTokens = address.split("[,()\\-_/\\s]+");
+        int score = 0;
+
+        for (String token : rawTokens) {
+            if (token == null) continue;
+            token = token.trim();
+            if (token.length() < 2) continue; // "동", "호" 같은 건 버림
+
+            String normToken = normalize(token);
+            if (!normToken.isEmpty() && normText.contains(normToken)) {
+                score++;
+            }
+        }
+        return score;
     }
 }
