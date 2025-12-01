@@ -19,10 +19,7 @@
             h.ER_PHONE as erPhone,
             h.LONGITUDE as longitude,
             h.LATITUDE as latitude,
-            h.SIMPLE_MAP as simpleMap,
-            h.MAIN_IMAGE as mainImage,
-            h.WEBSITE_URL as websiteURL,
-            h.NEARBY_DISTRICTS as nearbyDistricts
+            h.SIMPLE_MAP as simpleMap
         FROM HOSPITALS h
         JOIN HOSPITAL_DEPARTMENTS hd ON h.HOSPITAL_ID = hd.HOSPITAL_ID
         WHERE hd.DEPARTMENT IN
@@ -46,10 +43,7 @@
             h.ER_PHONE as erPhone,
             h.LONGITUDE as longitude,
             h.LATITUDE as latitude,
-            h.SIMPLE_MAP as simpleMap,
-            h.MAIN_IMAGE as mainImage,
-            h.WEBSITE_URL as websiteURL,
-            h.NEARBY_DISTRICTS as nearbyDistricts
+            h.SIMPLE_MAP as simpleMap
         FROM HOSPITALS h
         JOIN HOSPITAL_DEPARTMENTS hd ON h.HOSPITAL_ID = hd.HOSPITAL_ID
         WHERE hd.DEPARTMENT IN
@@ -74,10 +68,7 @@
             ER_PHONE as erPhone,
             LONGITUDE as longitude,
             LATITUDE as latitude,
-            SIMPLE_MAP as simpleMap,
-            MAIN_IMAGE as mainImage,
-            WEBSITE_URL as websiteURL,
-            NEARBY_DISTRICTS as nearbyDistricts
+            SIMPLE_MAP as simpleMap
         FROM HOSPITALS
         WHERE EMERGENCY_YN = 'Y'
     </select>
@@ -98,10 +89,7 @@
             ER_PHONE as erPhone,
             LONGITUDE as longitude,
             LATITUDE as latitude,
-            SIMPLE_MAP as simpleMap,
-            MAIN_IMAGE as mainImage,
-            WEBSITE_URL as websiteURL,
-            NEARBY_DISTRICTS as nearbyDistricts
+            SIMPLE_MAP as simpleMap
         FROM HOSPITALS
         WHERE LATITUDE BETWEEN #{swLat} AND #{neLat}
         AND LONGITUDE BETWEEN #{swLng} AND #{neLng}
@@ -125,10 +113,7 @@
             ER_PHONE as erPhone,
             LONGITUDE as longitude,
             LATITUDE as latitude,
-            SIMPLE_MAP as simpleMap,
-            MAIN_IMAGE as mainImage,
-            WEBSITE_URL as websiteURL,
-            NEARBY_DISTRICTS as nearbyDistricts
+            SIMPLE_MAP as simpleMap
         FROM HOSPITALS
     </select>
 
@@ -154,10 +139,7 @@
             ER_PHONE as erPhone,
             LONGITUDE as longitude,
             LATITUDE as latitude,
-            SIMPLE_MAP as simpleMap,
-            MAIN_IMAGE as mainImage,
-            WEBSITE_URL as websiteURL,
-            NEARBY_DISTRICTS as nearbyDistricts
+            SIMPLE_MAP as simpleMap
         FROM HOSPITALS
         ORDER BY HOSPITAL_NAME ASC
     </select>
@@ -178,10 +160,7 @@
             ER_PHONE,
             LONGITUDE,
             LATITUDE,
-            SIMPLE_MAP,
-            MAIN_IMAGE,
-            WEBSITE_URL,
-            NEARBY_DISTRICTS
+            SIMPLE_MAP
         ) VALUES (
             #{hospitalId},
             #{hospitalName},
@@ -196,17 +175,14 @@
             #{erPhone},
             #{longitude},
             #{latitude},
-            #{simpleMap},
-            #{mainImage},
-            #{websiteURL},
-            #{nearbyDistricts}
+            #{simpleMap}
         )
     </insert>
 
 	<!-- 관리자 병원 수정 -->
     <update id="updateHospital">
         UPDATE HOSPITALS
-        
+
         SET
             HOSPITAL_NAME = #{hospitalName},
             ADDRESS = #{address},
@@ -220,10 +196,7 @@
             ER_PHONE = #{erPhone},
             LONGITUDE = #{longitude},
             LATITUDE = #{latitude},
-            SIMPLE_MAP = #{simpleMap},
-            MAIN_IMAGE = #{mainImage},
-            WEBSITE_URL = #{websiteURL},
-            NEARBY_DISTRICTS = #{nearbyDistricts}
+            SIMPLE_MAP = #{simpleMap}
         
         WHERE HOSPITAL_ID = #{hospitalId}
     </update>
