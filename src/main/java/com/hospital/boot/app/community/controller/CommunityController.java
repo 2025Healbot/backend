@@ -285,6 +285,36 @@ public class CommunityController {
     }
 
     // =======================
+    // 📌 신고 상태만 업데이트
+    // =======================
+    @PutMapping("/reports/{reportId}/status")
+    public ResponseEntity<?> updateReportStatus(
+            @PathVariable Long reportId,
+            @RequestBody Map<String, String> body,
+            HttpSession session) {
+
+        String memberId = (String) session.getAttribute("memberId");
+        if (memberId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "로그인이 필요합니다."));
+        }
+
+        String status = body.get("status");
+        if (status == null || status.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "message", "상태를 입력해주세요."));
+        }
+
+        boolean updated = cService.updateReportStatusOnly(reportId, status);
+        if (!updated) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "상태 변경에 실패했습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    // =======================
     // 📌 신고 삭제
     // =======================
     @DeleteMapping("/reports/{reportId}")
