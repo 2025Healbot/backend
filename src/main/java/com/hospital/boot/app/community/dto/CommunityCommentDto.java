@@ -13,5 +13,4 @@ public class CommunityCommentDto {
     private String memberId;
     private String content;
     private String createdAt;   // TO_CHAR
-    private String userName;    // 댓글 작성자 이름
 }
