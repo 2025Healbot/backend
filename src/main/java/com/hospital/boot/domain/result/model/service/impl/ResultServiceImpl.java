@@ -34,14 +34,20 @@ public class ResultServiceImpl implements ResultService {
         // 3. 질병 검색 (정확도순: 이름 일치 우선, 설명 일치) - Map으로 반환 (진료과, 증상 포함)
         List<Map<String, Object>> diseases = rMapper.searchDiseasesByNameOrDescription(keyword);
 
-        // 4. 결과 구성
+        // 4. 공지사항 검색 (제목, 내용으로 검색)
+        List<Map<String, Object>> notices = rMapper.searchNotices(keyword);
+
+        // 5. 커뮤니티 검색 (제목, 내용으로 검색, 공개 상태만)
+        List<Map<String, Object>> communities = rMapper.searchCommunities(keyword);
+
+        // 6. 결과 구성
         Map<String, Object> results = new HashMap<>();
         results.put("hospitals", hospitals);
         results.put("diseases", diseases);
-        results.put("notices", null);      // 추후 구현
-        results.put("communities", null);  // 추후 구현
+        results.put("notices", notices);
+        results.put("communities", communities);
 
-        // 5. 최종 응답
+        // 7. 최종 응답
         Map<String, Object> response = new HashMap<>();
         response.put("keyword", keyword);
         response.put("symptomInfo", symptomInfo);  // null이면 증상 아님

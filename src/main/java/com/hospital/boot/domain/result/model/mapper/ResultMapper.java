@@ -18,4 +18,10 @@ public interface ResultMapper {
 
     // 질병 검색 (정확도순: 이름 일치 우선, 그 다음 설명 일치) - Map으로 반환 (진료과, 증상 포함)
     List<Map<String, Object>> searchDiseasesByNameOrDescription(@Param("keyword") String keyword);
+
+    // 공지사항 검색 (제목, 내용으로 검색)
+    List<Map<String, Object>> searchNotices(@Param("keyword") String keyword);
+
+    // 커뮤니티 게시글 검색 (제목, 내용으로 검색)
+    List<Map<String, Object>> searchCommunities(@Param("keyword") String keyword);
 }

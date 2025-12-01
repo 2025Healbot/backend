@@ -14,22 +14,19 @@
     <!-- 병원 이름으로 검색 (띄어쓰기 무시, LIKE, 이름순 정렬) -->
     <select id="searchHospitalsByName" resultType="com.hospital.boot.domain.hospital.model.vo.Hospital">
         SELECT
-            HOSPITAL_ID as hospitalId,
-            HOSPITAL_NAME as hospitalName,
-            ADDRESS as address,
-            HOSPITAL_GRADE as hospitalGrade,
-            HOSPITAL_TYPE as hospitalType,
-            DETAILS as details,
-            OPERATING_HOURS as operatingHours,
-            LUNCH_TIME as lunchTime,
-            EMERGENCY_YN as emergencyYn,
-            PHONE as phone,
-            LONGITUDE as longitude,
-            LATITUDE as latitude,
-            SIMPLE_MAP as simpleMap,
-            MAIN_IMAGE as mainImage,
-            WEBSITE_URL as websiteURL,
-            NEARBY_DISTRICTS as nearbyDistricts
+        HOSPITAL_ID as hospitalId,
+        HOSPITAL_NAME as hospitalName,
+        ADDRESS as address,
+        HOSPITAL_GRADE as hospitalGrade,
+        HOSPITAL_TYPE as hospitalType,
+        DETAILS as details,
+        OPERATING_HOURS as operatingHours,
+        LUNCH_TIME as lunchTime,
+        EMERGENCY_YN as emergencyYn,
+        PHONE as phone,
+        LONGITUDE as longitude,
+        LATITUDE as latitude,
+        SIMPLE_MAP as simpleMap,
         FROM HOSPITALS
         WHERE REPLACE(HOSPITAL_NAME, ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%'
         ORDER BY HOSPITAL_NAME
@@ -38,46 +35,81 @@
     <!-- 질병 검색 (띄어쓰기 무시, 정확도순: 이름 일치 우선, 그 다음 설명 일치) -->
     <select id="searchDiseasesByNameOrDescription" resultType="map">
         WITH AllSymptoms AS (
-            SELECT
-                DISEASE_NAME,
-                LISTAGG(SYMPTOM_NAME, ', ')
-                    WITHIN GROUP (ORDER BY SYMPTOM_NAME) AS all_symptoms
-            FROM (
-                SELECT DISTINCT DISEASE_NAME, SYMPTOM_NAME
-                FROM DISEASE_SYMPTOM_MAPPINGS
-            )
-            GROUP BY DISEASE_NAME
+        SELECT
+        DISEASE_NAME,
+        LISTAGG(SYMPTOM_NAME, ', ')
+        WITHIN GROUP (ORDER BY SYMPTOM_NAME) AS all_symptoms
+        FROM (
+        SELECT DISTINCT DISEASE_NAME, SYMPTOM_NAME
+        FROM DISEASE_SYMPTOM_MAPPINGS
+        )
+        GROUP BY DISEASE_NAME
         ),
         MatchedDiseases AS (
-            SELECT
-                d.DISEASE_NO,
-                d.DISEASE_NAME,
-                d.IMAGE_URL,
-                d.DESCRIPTION,
-                d.TOTAL_PATIENTS,
-                CASE
-                    WHEN REPLACE(d.DISEASE_NAME, ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%' THEN 1
-                    ELSE 2
-                END as matchPriority
-            FROM DISEASES d
-            WHERE REPLACE(d.DISEASE_NAME, ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%'
-               OR REPLACE(d.DESCRIPTION, ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%'
+        SELECT
+        d.DISEASE_NO,
+        d.DISEASE_NAME,
+        d.IMAGE_URL,
+        d.DESCRIPTION,
+        d.TOTAL_PATIENTS,
+        CASE
+        WHEN REPLACE(d.DISEASE_NAME, ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%' THEN 1
+        ELSE 2
+        END as matchPriority
+        FROM DISEASES d
+        WHERE REPLACE(d.DISEASE_NAME, ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%'
+        OR REPLACE(d.DESCRIPTION, ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%'
         )
         SELECT
-            md.DISEASE_NO as diseaseNo,
-            md.DISEASE_NAME as diseaseName,
-            md.IMAGE_URL as imageUrl,
-            md.DESCRIPTION as description,
-            md.TOTAL_PATIENTS as totalPatients,
-            md.matchPriority,
-            LISTAGG(dd.DEPARTMENT_NAME, ', ')
-                WITHIN GROUP (ORDER BY dd.DEPARTMENT_NAME) as department,
-            asym.all_symptoms as symptoms
+        md.DISEASE_NO as diseaseNo,
+        md.DISEASE_NAME as diseaseName,
+        md.IMAGE_URL as imageUrl,
+        md.DESCRIPTION as description,
+        md.TOTAL_PATIENTS as totalPatients,
+        md.matchPriority,
+        LISTAGG(dd.DEPARTMENT_NAME, ', ')
+        WITHIN GROUP (ORDER BY dd.DEPARTMENT_NAME) as department,
+        asym.all_symptoms as symptoms
         FROM MatchedDiseases md
-            LEFT JOIN DISEASE_DEPARTMENTS dd ON md.DISEASE_NAME = dd.DISEASE_NAME
-            LEFT JOIN AllSymptoms asym ON md.DISEASE_NAME = asym.DISEASE_NAME
+        LEFT JOIN DISEASE_DEPARTMENTS dd ON md.DISEASE_NAME = dd.DISEASE_NAME
+        LEFT JOIN AllSymptoms asym ON md.DISEASE_NAME = asym.DISEASE_NAME
         GROUP BY md.DISEASE_NO, md.DISEASE_NAME, md.IMAGE_URL, md.DESCRIPTION, md.TOTAL_PATIENTS, md.matchPriority, asym.all_symptoms
         ORDER BY md.matchPriority, md.TOTAL_PATIENTS DESC, md.DISEASE_NAME
+    </select>
+
+    <!-- 공지사항 검색 (제목, 내용으로 검색) -->
+    <select id="searchNotices" resultType="map">
+        SELECT
+        NOTICE_NO as noticeId,
+        NOTICE_SUBJECT as title,
+        TO_CHAR(NOTICE_CONTENT) as content,
+        CATEGORY as category,
+        VIEW_COUNT as viewCount,
+        TO_CHAR(WRITE_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') as createdAt
+        FROM NOTICE
+        WHERE REPLACE(NOTICE_SUBJECT, ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%'
+        OR REPLACE(TO_CHAR(NOTICE_CONTENT), ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%'
+        ORDER BY WRITE_DATE DESC
+    </select>
+
+    <!-- 커뮤니티 게시글 검색 (제목, 내용으로 검색, 활성 상태만) -->
+    <select id="searchCommunities" resultType="map">
+        SELECT
+        p.POST_ID as postId,
+        p.MEMBER_ID as memberId,
+        m.USER_NAME as author,
+        p.CATEGORY as category,
+        p.TITLE as title,
+        TO_CHAR(p.CONTENT) as content,
+        p.VIEWS as views,
+        p.CREATED_AT as createdAt,
+        p.STATUS as status
+        FROM COMMUNITY_POST p
+        JOIN MEMBER m ON p.MEMBER_ID = m.MEMBER_ID
+        WHERE (REPLACE(p.TITLE, ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%'
+        OR REPLACE(TO_CHAR(p.CONTENT), ' ', '') LIKE '%' || REPLACE(#{keyword}, ' ', '') || '%')
+        AND p.STATUS = 'ACTIVE'
+        ORDER BY p.CREATED_AT DESC
     </select>
 
 </mapper>
