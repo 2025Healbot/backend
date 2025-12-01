@@ -38,6 +38,8 @@ public interface CommunityService {
 
 	boolean updateReply(Long reportId, String reply);
 
+	boolean updateReportStatusOnly(Long reportId, String status);
+
 	boolean deleteReport(Long reportId);
 
 	boolean togglePostVisibility(Long postId);

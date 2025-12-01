@@ -148,6 +148,12 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
+	public boolean updateReportStatusOnly(Long reportId, String status) {
+		int affected = cMapper.updateReportStatusOnly(reportId, status);
+		return affected > 0;
+	}
+
+	@Override
 	public boolean deleteReport(Long reportId) {
 		int affected = cMapper.deleteReport(reportId);
 		return affected > 0;

@@ -219,6 +219,12 @@
         WHERE REPORT_ID = #{reportId}
     </update>
 
+    <update id="updateReportStatusOnly">
+        UPDATE COMMUNITY_REPORT
+        SET STATUS = #{status}
+        WHERE REPORT_ID = #{reportId}
+    </update>
+
     <delete id="deleteReport">
         DELETE FROM COMMUNITY_REPORT
         WHERE REPORT_ID = #{reportId}

@@ -53,6 +53,10 @@ public interface CommunityMapper {
             @Param("reportId") Long reportId,
             @Param("reply") String reply);
 
+    int updateReportStatusOnly(
+            @Param("reportId") Long reportId,
+            @Param("status") String status);
+
     int deleteReport(@Param("reportId") Long reportId);
 
     int togglePostVisibility(@Param("postId") Long postId);
