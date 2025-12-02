@@ -28,6 +28,12 @@ public interface HospitalService {
     // 관리자 병원 진료과 목록 조회 (AdminController)
     List<String> getDepartmentsByHospitalId(String hospitalId);
 
+    // 병원 진료과 추가
+    int insertHospitalDepartment(String hospitalId, String department);
+
+    // 병원 진료과 삭제
+    int deleteHospitalDepartments(String hospitalId);
+
     List<Hospital> findAllHospitals();
 
     List<Hospital> findByDepartments(List<String> departments);

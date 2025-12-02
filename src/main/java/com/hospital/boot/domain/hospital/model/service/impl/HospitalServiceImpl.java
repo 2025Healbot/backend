@@ -68,4 +68,16 @@ public class HospitalServiceImpl implements HospitalService {
     public List<Hospital> findByDepartments(List<String> departments) {
         return hMapper.findHospitalByDepartments(departments);
     }
+
+    // 병원 진료과 추가
+    @Override
+    public int insertHospitalDepartment(String hospitalId, String department) {
+        return hMapper.insertHospitalDepartment(hospitalId, department);
+    }
+
+    // 병원 진료과 삭제
+    @Override
+    public int deleteHospitalDepartments(String hospitalId) {
+        return hMapper.deleteHospitalDepartments(hospitalId);
+    }
 }

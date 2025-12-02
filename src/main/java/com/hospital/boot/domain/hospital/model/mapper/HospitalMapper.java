@@ -36,4 +36,10 @@ public interface HospitalMapper {
 
     // 관리자 병원 진료과 목록 조회
     List<String> getDepartmentsByHospitalId(@Param("hospitalId") String hospitalId);
+
+    // 병원 진료과 추가
+    int insertHospitalDepartment(@Param("hospitalId") String hospitalId, @Param("department") String department);
+
+    // 병원 진료과 삭제
+    int deleteHospitalDepartments(@Param("hospitalId") String hospitalId);
 }
