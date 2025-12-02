@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -342,13 +344,13 @@ public class AdminController {
 
             // 이미지가 있으면 Cloudflare R2에 업로드
             if (image != null && !image.isEmpty()) {
-                String sanitizedDiseaseName = diseaseName.replaceAll("[^a-zA-Z0-9가-힣_-]", "_");
+                String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
                 String extension = "";
                 String originalFilename = image.getOriginalFilename();
                 if (originalFilename != null && originalFilename.contains(".")) {
                     extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 }
-                String fileName = sanitizedDiseaseName + extension;
+                String fileName = timestamp + extension;
                 String imageUrl = r2Service.uploadFile(image, "__healbot__/disease/img", fileName);
                 disease.setImageUrl(imageUrl);
             }
@@ -430,13 +432,13 @@ public class AdminController {
                 }
 
                 // 새 이미지 업로드
-                String sanitizedDiseaseName = diseaseName.replaceAll("[^a-zA-Z0-9가-힣_-]", "_");
+                String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
                 String extension = "";
                 String originalFilename = image.getOriginalFilename();
                 if (originalFilename != null && originalFilename.contains(".")) {
                     extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 }
-                String fileName = sanitizedDiseaseName + extension;
+                String fileName = timestamp + extension;
                 String imageUrl = r2Service.uploadFile(image, "__healbot__/disease/img", fileName);
                 disease.setImageUrl(imageUrl);
             }
