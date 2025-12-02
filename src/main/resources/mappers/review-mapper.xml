@@ -44,6 +44,39 @@
             </otherwise>
         </choose>
     </select>
+    
+    <!-- ✅ 전체 리뷰 목록 (병원 제한 없음) -->
+    <select id="findAllReviews"
+            resultMap="reviewResultMap">
+        SELECT
+            r.REVIEW_ID,
+            r.HOSPITAL_ID,
+            r.MEMBER_ID,
+            r.SCORE,
+            r.CONTENT,
+            r.CREATED_AT,
+            m.USER_NAME,
+            h.HOSPITAL_NAME
+        FROM REVIEWS r
+        JOIN MEMBER   m ON r.MEMBER_ID   = m.MEMBER_ID
+        JOIN HOSPITALS h ON r.HOSPITAL_ID = h.HOSPITAL_ID
+        <where>
+            <if test="scoreFilter != null">
+                r.SCORE = #{scoreFilter}
+            </if>
+        </where>
+        <choose>
+            <when test="sort == 'high'">
+                ORDER BY r.SCORE DESC, r.CREATED_AT DESC
+            </when>
+            <when test="sort == 'low'">
+                ORDER BY r.SCORE ASC, r.CREATED_AT DESC
+            </when>
+            <otherwise>
+                ORDER BY r.CREATED_AT DESC
+            </otherwise>
+        </choose>
+    </select>
 
     <!-- 평균 평점 -->
     <select id="getAvgScore" resultType="double">
