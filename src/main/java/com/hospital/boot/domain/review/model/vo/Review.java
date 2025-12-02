@@ -23,4 +23,5 @@ public class Review {
 
     // 조회용(조인 결과) – 테이블 컬럼은 아니지만 MyBatis에서 매핑해서 씀
     private String writerName; // MEMBER.USER_NAME
+    private String hospitalName;  // h.HOSPITAL_NAME
 }

@@ -99,7 +99,7 @@ public class ReviewController {
         }
     }
     
-    @GetMapping("/reviews/all")
+    @GetMapping("/all")
     public ReviewListResponse getAllReviews(
             @RequestParam(defaultValue = "latest") String sort,
             @RequestParam(defaultValue = "all") String rating) {
