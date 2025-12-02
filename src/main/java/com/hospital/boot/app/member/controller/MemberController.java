@@ -125,14 +125,16 @@ public class MemberController {
             boolean loggedIn = (memberId != null);
 
             String adminYn = "N"; // 기본값
+            String userName = null;
             if (loggedIn) {
                 try {
-                    // 로그인이 되어있으면 DB에서 회원 정보를 조회하여 adminYn 가져오기
+                    // 로그인이 되어있으면 DB에서 회원 정보를 조회하여 adminYn, userName 가져오기
                     Member member = mService.findByMemberIdAny(memberId);
                     if (member != null) {
                         if (member.getAdminYn() != null) {
                             adminYn = member.getAdminYn();
                         }
+                        userName = member.getUserName();
                     }
                 } catch (Exception e) {
                     // DB 조회 실패 시 기본값 사용
@@ -142,11 +144,13 @@ public class MemberController {
 
             String finalAdminYn = adminYn;
             String finalMemberId = memberId;
-            
+            String finalUserName = userName;
+
             return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
                 put("loggedIn", loggedIn);
                 put("admin_YN", finalAdminYn);
                 put("memberId", finalMemberId);
+                put("userName", finalUserName);
             }});
         } catch (Exception e) {
             e.printStackTrace();
