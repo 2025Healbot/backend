@@ -6,6 +6,7 @@ import com.hospital.boot.domain.notice.model.service.NoticeService;
 import com.hospital.boot.domain.notice.model.vo.Notice;
 import com.hospital.boot.domain.hospital.model.service.HospitalService;
 import com.hospital.boot.domain.hospital.model.vo.Hospital;
+import com.hospital.boot.app.admin.dto.HospitalDTO;
 import com.hospital.boot.domain.accesslog.model.service.AccessLogService;
 import com.hospital.boot.domain.diseases.model.service.DiseasesService;
 import com.hospital.boot.domain.diseases.model.vo.Diseases;
@@ -173,18 +174,44 @@ public class AdminController {
 
     /**
      * 병원 추가
-     * @param hospital 병원 정보
+     * @param hospitalDTO 병원 정보 (진료과 포함)
      * @return 추가 성공 여부
      */
     @PostMapping("/hospitals")
-    public Map<String, Object> createHospital(@RequestBody Hospital hospital) {
+    public Map<String, Object> createHospital(@RequestBody HospitalDTO hospitalDTO) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            hService.insertHospital(hospital);
+            System.out.println("=== 병원 추가 시작 ===");
+            System.out.println("Hospital ID: " + hospitalDTO.getHospitalId());
+            System.out.println("Hospital Name: " + hospitalDTO.getHospitalName());
+            System.out.println("Departments: " + hospitalDTO.getDepartments());
+
+            // 병원 정보 저장
+            hService.insertHospital(hospitalDTO);
+            System.out.println("병원 정보 저장 완료");
+
+            // 진료과 정보 저장
+            if (hospitalDTO.getDepartments() != null && !hospitalDTO.getDepartments().trim().isEmpty()) {
+                String[] departments = hospitalDTO.getDepartments().split(",");
+                System.out.println("진료과 개수: " + departments.length);
+                for (String dept : departments) {
+                    String trimmedDept = dept.trim();
+                    if (!trimmedDept.isEmpty()) {
+                        System.out.println("진료과 저장 중: " + trimmedDept);
+                        hService.insertHospitalDepartment(hospitalDTO.getHospitalId(), trimmedDept);
+                    }
+                }
+                System.out.println("진료과 저장 완료");
+            } else {
+                System.out.println("진료과 정보 없음");
+            }
+
             response.put("success", true);
             response.put("message", "병원이 추가되었습니다.");
         } catch (Exception e) {
+            System.out.println("병원 추가 실패: " + e.getMessage());
+            e.printStackTrace();
             response.put("success", false);
             response.put("message", "병원 추가에 실패했습니다.");
         }
@@ -195,16 +222,33 @@ public class AdminController {
     /**
      * 병원 수정
      * @param hospitalId 병원 ID
-     * @param hospital 수정할 병원 정보
+     * @param hospitalDTO 수정할 병원 정보 (진료과 포함)
      * @return 수정 성공 여부
      */
     @PutMapping("/hospitals/{hospitalId}")
-    public Map<String, Object> updateHospital(@PathVariable String hospitalId, @RequestBody Hospital hospital) {
+    public Map<String, Object> updateHospital(@PathVariable String hospitalId, @RequestBody HospitalDTO hospitalDTO) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            hospital.setHospitalId(hospitalId);
-            hService.updateHospital(hospital);
+            hospitalDTO.setHospitalId(hospitalId);
+
+            // 병원 정보 수정
+            hService.updateHospital(hospitalDTO);
+
+            // 기존 진료과 삭제
+            hService.deleteHospitalDepartments(hospitalId);
+
+            // 새로운 진료과 정보 저장
+            if (hospitalDTO.getDepartments() != null && !hospitalDTO.getDepartments().trim().isEmpty()) {
+                String[] departments = hospitalDTO.getDepartments().split(",");
+                for (String dept : departments) {
+                    String trimmedDept = dept.trim();
+                    if (!trimmedDept.isEmpty()) {
+                        hService.insertHospitalDepartment(hospitalId, trimmedDept);
+                    }
+                }
+            }
+
             response.put("success", true);
             response.put("message", "병원 정보가 수정되었습니다.");
         } catch (Exception e) {
@@ -225,6 +269,10 @@ public class AdminController {
         Map<String, Object> response = new HashMap<>();
 
         try {
+            // 먼저 해당 병원의 진료과 삭제
+            hService.deleteHospitalDepartments(hospitalId);
+
+            // 병원 삭제
             hService.deleteHospital(hospitalId);
             response.put("success", true);
             response.put("message", "병원이 삭제되었습니다.");
