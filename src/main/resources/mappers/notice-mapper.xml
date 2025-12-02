@@ -8,30 +8,22 @@
     <select id="getAllNotices" resultType="com.hospital.boot.domain.notice.model.vo.Notice">
         SELECT
             NOTICE_NO as noticeNo,
-            MEMBER_ID as memberId,
             NOTICE_SUBJECT as noticeSubject,
             NOTICE_CONTENT as noticeContent,
             NOTICE_WRITER as noticeWriter,
             TO_CHAR(WRITE_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') as writeDate,
             VIEW_COUNT as viewCount,
-            ATTACHMENT_NAME as attachmentName,
-            ATTACHMENT_PATH as attachmentPath,
-            TO_CHAR(ATTACHMENT_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') as attachmentDate,
             CATEGORY as category,
             TO_CHAR(CREATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') as createdAt,
-            TO_CHAR(UPDATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') as updatedAt
-        
+            TO_CHAR(UPDATED_AT, 'YYYY-MM-DD"T"HH24:MI:SS') as updatedAt        
         FROM NOTICE
-        
         ORDER BY WRITE_DATE DESC
     </select>
     
     <!-- 공지사항 조회수 증가 -->
     <update id="incrementViews">
         UPDATE NOTICE
-        
         SET VIEW_COUNT = VIEW_COUNT + 1
-        
         WHERE NOTICE_NO = #{noticeNo}
     </update>
 
@@ -42,29 +34,21 @@
         </selectKey>
         INSERT INTO NOTICE (
             NOTICE_NO,
-            MEMBER_ID,
             NOTICE_SUBJECT,
             NOTICE_CONTENT,
             NOTICE_WRITER,
             WRITE_DATE,
             VIEW_COUNT,
-            ATTACHMENT_NAME,
-            ATTACHMENT_PATH,
-            ATTACHMENT_DATE,
             CATEGORY,
             CREATED_AT,
             UPDATED_AT
         ) VALUES (
             #{noticeNo},
-            #{memberId},
             #{noticeSubject},
             #{noticeContent},
             #{noticeWriter},
             SYSDATE,
             0,
-            #{attachmentName},
-            #{attachmentPath},
-            #{attachmentDate},
             #{category},
             SYSDATE,
             SYSDATE
@@ -74,23 +58,17 @@
     <!-- 관리자 공지사항 수정 -->
     <update id="updateNotice" parameterType="com.hospital.boot.domain.notice.model.vo.Notice">
         UPDATE NOTICE
-        
         SET
             NOTICE_SUBJECT = #{noticeSubject},
             NOTICE_CONTENT = #{noticeContent},
             CATEGORY = #{category},
-            ATTACHMENT_NAME = #{attachmentName},
-            ATTACHMENT_PATH = #{attachmentPath},
-            ATTACHMENT_DATE = #{attachmentDate},
             UPDATED_AT = SYSDATE
-        
         WHERE NOTICE_NO = #{noticeNo}
     </update>
 
     <!-- 관리자 공지사항 삭제 -->
     <delete id="deleteNotice">
         DELETE FROM NOTICE
-        
         WHERE NOTICE_NO = #{noticeNo}
     </delete>
 
