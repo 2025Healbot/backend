@@ -31,4 +31,10 @@
         ORDER BY TRUNC(AL.ACCESS_DATE)
     </select>
 
+    <!-- 오래된 접속 로그 삭제 (7일 이전) -->
+    <delete id="deleteOldAccessLogs">
+        DELETE FROM ACCESS_LOG
+        WHERE ACCESS_DATE &lt; TRUNC(SYSDATE) - 7
+    </delete>
+
 </mapper>

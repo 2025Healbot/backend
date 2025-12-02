@@ -11,4 +11,7 @@ public interface AccessLogService {
 
     // 관리자 일별 로그인 횟수 조회 (최근 7일 기준) (AdminController)
     List<Map<String, Object>> getDailyLoginCount();
+
+    // 오래된 접속 로그 삭제
+    int deleteOldAccessLogs();
 }

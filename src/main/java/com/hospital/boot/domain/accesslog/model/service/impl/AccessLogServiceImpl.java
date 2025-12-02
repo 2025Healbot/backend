@@ -5,6 +5,8 @@ import com.hospital.boot.domain.accesslog.model.service.AccessLogService;
 import com.hospital.boot.domain.accesslog.model.vo.AccessLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Map;
 import java.util.List;
 
@@ -22,5 +24,11 @@ public class AccessLogServiceImpl implements AccessLogService {
     @Override
     public List<Map<String, Object>> getDailyLoginCount() {
         return mapper.getDailyLoginCount();
+    }
+
+    @Transactional
+    @Override
+    public int deleteOldAccessLogs() {
+        return mapper.deleteOldAccessLogs();
     }
 }
