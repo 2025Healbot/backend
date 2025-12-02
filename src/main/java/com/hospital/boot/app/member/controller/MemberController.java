@@ -5,6 +5,7 @@ import com.hospital.boot.app.member.dto.LoginResponse;
 import com.hospital.boot.app.member.dto.ProfileResponse;
 import com.hospital.boot.app.member.dto.ProfileUpdateRequest;
 import com.hospital.boot.domain.member.model.service.MemberService;
+import com.hospital.boot.domain.member.model.service.EmailService;
 import com.hospital.boot.domain.member.model.vo.Member;
 import com.hospital.boot.domain.accesslog.model.service.AccessLogService;
 import com.hospital.boot.domain.accesslog.model.vo.AccessLog;
@@ -22,6 +23,7 @@ public class MemberController {
 
     private final MemberService mService;
     private final AccessLogService alService;
+    private final EmailService emailService;
 
     @GetMapping("/login")
     public ResponseEntity<LoginResponse> socialLogin(
@@ -328,5 +330,47 @@ public class MemberController {
             ip = request.getRemoteAddr();
         }
         return ip;
+    }
+
+    /**
+     * 이메일 인증코드 발송
+     */
+    @PostMapping("/send-email-code")
+    public ResponseEntity<?> sendEmailCode(@RequestParam String email) {
+        try {
+            boolean sent = emailService.sendVerificationCode(email);
+
+            return ResponseEntity.ok(new java.util.HashMap<String, Boolean>() {{
+                put("success", sent);
+            }});
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new java.util.HashMap<String, Boolean>() {{
+                        put("success", false);
+                    }});
+        }
+    }
+
+    /**
+     * 이메일 인증코드 검증
+     */
+    @PostMapping("/verify-email-code")
+    public ResponseEntity<?> verifyEmailCode(
+            @RequestParam String email,
+            @RequestParam String code) {
+        try {
+            boolean verified = emailService.verifyCode(email, code);
+
+            return ResponseEntity.ok(new java.util.HashMap<String, Boolean>() {{
+                put("verified", verified);
+            }});
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new java.util.HashMap<String, Boolean>() {{
+                        put("verified", false);
+                    }});
+        }
     }
 }
