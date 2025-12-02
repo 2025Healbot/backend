@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.hospital.boot.app.review.dto.HospitalSearchDto;
 import com.hospital.boot.domain.review.model.vo.Review;
 
 @Mapper
@@ -27,4 +28,6 @@ public interface ReviewMapper {
     String getHospitalName(@Param("hospitalId") String hospitalId);
 
     int insertReview(Review review);
+    
+    List<HospitalSearchDto> searchHospitals(@Param("keyword") String keyword);
 }

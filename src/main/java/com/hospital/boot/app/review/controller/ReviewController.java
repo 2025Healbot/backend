@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hospital.boot.app.member.dto.CommonResponse;
+import com.hospital.boot.app.review.dto.HospitalSearchDto;
 import com.hospital.boot.app.review.dto.ReviewListResponse;
 import com.hospital.boot.domain.review.model.service.ReviewService;
 import com.hospital.boot.domain.review.model.vo.Review;
@@ -104,5 +105,13 @@ public class ReviewController {
             @RequestParam(defaultValue = "latest") String sort,
             @RequestParam(defaultValue = "all") String rating) {
         return rService.getAllReviews(sort, rating);
+    }
+    
+    @GetMapping("/search")
+    public ResponseEntity<List<HospitalSearchDto>> searchHospitals(
+            @RequestParam(name = "keyword", defaultValue = "") String keyword) {
+
+        List<HospitalSearchDto> list = rService.searchHospitals(keyword);
+        return ResponseEntity.ok(list);
     }
 }

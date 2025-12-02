@@ -3,6 +3,7 @@ package com.hospital.boot.domain.review.model.service;
 
 import java.util.List;
 
+import com.hospital.boot.app.review.dto.HospitalSearchDto;
 import com.hospital.boot.app.review.dto.ReviewListResponse;
 import com.hospital.boot.domain.review.model.vo.Review;
 
@@ -38,4 +39,9 @@ public interface ReviewService {
     int insertReview(Review review);
 
 	ReviewListResponse getAllReviews(String sort, String rating);
+	
+	/**
+     * 병원명 키워드로 검색
+     */
+    List<HospitalSearchDto> searchHospitals(String keyword);
 }

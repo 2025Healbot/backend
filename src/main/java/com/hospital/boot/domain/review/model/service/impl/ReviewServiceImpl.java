@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.hospital.boot.app.review.dto.HospitalSearchDto;
 import com.hospital.boot.app.review.dto.ReviewListResponse;
 import com.hospital.boot.domain.review.model.mapper.ReviewMapper;
 import com.hospital.boot.domain.review.model.service.ReviewService;
@@ -67,4 +68,13 @@ public class ReviewServiceImpl implements ReviewService {
 	    // 전체 평균, 전체 개수 등 넣고 싶으면 여기서 계산
 	    return res;
 	}
+	
+	@Override
+    public List<HospitalSearchDto> searchHospitals(String keyword) {
+        // 키워드 null 방어
+        if (keyword == null) {
+            keyword = "";
+        }
+        return rMapper.searchHospitals(keyword);
+    }
 }

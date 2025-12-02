@@ -77,6 +77,32 @@
             </otherwise>
         </choose>
     </select>
+    
+    <!-- DTO 매핑 -->
+	<resultMap id="hospitalSearchResultMap"
+	           type="com.hospital.boot.app.review.dto.HospitalSearchDto">
+	    <id     property="id"      column="HOSPITAL_ID" />
+	    <result property="name"    column="HOSPITAL_NAME" />
+	    <result property="address" column="ADDRESS" />
+	</resultMap>
+	
+	<!-- 병원 검색 -->
+	<select id="searchHospitals"
+	        parameterType="string"
+	        resultMap="hospitalSearchResultMap">
+	    SELECT
+	        HOSPITAL_ID,
+	        HOSPITAL_NAME,
+	        ADDRESS
+	    FROM HOSPITALS
+	    <where>
+	        <if test="keyword != null and keyword != ''">
+	            AND HOSPITAL_NAME LIKE '%' || #{keyword} || '%'
+	        </if>
+	    </where>
+	    ORDER BY HOSPITAL_NAME ASC
+	    FETCH FIRST 20 ROWS ONLY
+	</select>
 
     <!-- 평균 평점 -->
     <select id="getAvgScore" resultType="double">
