@@ -108,4 +108,24 @@ public class DiseasesServiceImpl implements DiseasesService {
     public Diseases findByDiseaseNo(int diseaseNo) {
         return dMapper.findByDiseaseNo(diseaseNo);
     }
+
+    @Override
+    public int insertDiseaseDepartment(String diseaseName, String departmentName) {
+        return dMapper.insertDiseaseDepartment(diseaseName, departmentName);
+    }
+
+    @Override
+    public int deleteDiseaseDepartments(String diseaseName) {
+        return dMapper.deleteDiseaseDepartments(diseaseName);
+    }
+
+    @Override
+    public int insertDiseaseSymptom(String diseaseName, String symptomName) {
+        return dMapper.insertDiseaseSymptom(diseaseName, symptomName);
+    }
+
+    @Override
+    public int deleteDiseaseSymptoms(String diseaseName) {
+        return dMapper.deleteDiseaseSymptoms(diseaseName);
+    }
 }

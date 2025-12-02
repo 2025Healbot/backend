@@ -216,4 +216,26 @@
         DELETE FROM DISEASES
         WHERE DISEASE_NO = #{diseaseNo}
     </delete>
+
+    <!-- Disease Departments -->
+    <insert id="insertDiseaseDepartment">
+        INSERT INTO DISEASE_DEPARTMENTS (DISEASE_NAME, DEPARTMENT_NAME)
+        VALUES (#{diseaseName}, #{departmentName})
+    </insert>
+
+    <delete id="deleteDiseaseDepartments">
+        DELETE FROM DISEASE_DEPARTMENTS
+        WHERE DISEASE_NAME = #{diseaseName}
+    </delete>
+
+    <!-- Disease Symptoms -->
+    <insert id="insertDiseaseSymptom">
+        INSERT INTO DISEASE_SYMPTOM_MAPPINGS (DISEASE_NAME, SYMPTOM_NAME)
+        VALUES (#{diseaseName}, #{symptomName})
+    </insert>
+
+    <delete id="deleteDiseaseSymptoms">
+        DELETE FROM DISEASE_SYMPTOM_MAPPINGS
+        WHERE DISEASE_NAME = #{diseaseName}
+    </delete>
 </mapper>

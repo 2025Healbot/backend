@@ -274,13 +274,17 @@ public class AdminController {
      * @param diseaseName 질환명
      * @param description 설명
      * @param image 이미지 파일
+     * @param departments 진료과 (쉼표로 구분)
+     * @param symptoms 증상 (쉼표로 구분)
      * @return 추가 성공 여부
      */
     @PostMapping("/diseases")
     public Map<String, Object> createDisease(
             @RequestParam("diseaseName") String diseaseName,
             @RequestParam("description") String description,
-            @RequestParam(value = "image", required = false) MultipartFile image) {
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam(value = "departments", required = false) String departments,
+            @RequestParam(value = "symptoms", required = false) String symptoms) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -304,6 +308,28 @@ public class AdminController {
             int result = dService.addDisease(disease);
 
             if (result > 0) {
+                // 진료과 추가
+                if (departments != null && !departments.trim().isEmpty()) {
+                    String[] deptArray = departments.split(",");
+                    for (String dept : deptArray) {
+                        String trimmedDept = dept.trim();
+                        if (!trimmedDept.isEmpty()) {
+                            dService.insertDiseaseDepartment(diseaseName, trimmedDept);
+                        }
+                    }
+                }
+
+                // 증상 추가
+                if (symptoms != null && !symptoms.trim().isEmpty()) {
+                    String[] symptomArray = symptoms.split(",");
+                    for (String symptom : symptomArray) {
+                        String trimmedSymptom = symptom.trim();
+                        if (!trimmedSymptom.isEmpty()) {
+                            dService.insertDiseaseSymptom(diseaseName, trimmedSymptom);
+                        }
+                    }
+                }
+
                 response.put("success", true);
                 response.put("message", "질환이 추가되었습니다.");
             } else {
@@ -324,6 +350,8 @@ public class AdminController {
      * @param diseaseName 질환명
      * @param description 설명
      * @param image 이미지 파일 (선택)
+     * @param departments 진료과 (쉼표로 구분)
+     * @param symptoms 증상 (쉼표로 구분)
      * @return 수정 성공 여부
      */
     @PutMapping("/diseases/{diseaseNo}")
@@ -331,7 +359,9 @@ public class AdminController {
             @PathVariable int diseaseNo,
             @RequestParam("diseaseName") String diseaseName,
             @RequestParam("description") String description,
-            @RequestParam(value = "image", required = false) MultipartFile image) {
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam(value = "departments", required = false) String departments,
+            @RequestParam(value = "symptoms", required = false) String symptoms) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -366,6 +396,32 @@ public class AdminController {
             int result = dService.updateDisease(disease);
 
             if (result > 0) {
+                // 기존 진료과 및 증상 삭제
+                dService.deleteDiseaseDepartments(diseaseName);
+                dService.deleteDiseaseSymptoms(diseaseName);
+
+                // 진료과 추가
+                if (departments != null && !departments.trim().isEmpty()) {
+                    String[] deptArray = departments.split(",");
+                    for (String dept : deptArray) {
+                        String trimmedDept = dept.trim();
+                        if (!trimmedDept.isEmpty()) {
+                            dService.insertDiseaseDepartment(diseaseName, trimmedDept);
+                        }
+                    }
+                }
+
+                // 증상 추가
+                if (symptoms != null && !symptoms.trim().isEmpty()) {
+                    String[] symptomArray = symptoms.split(",");
+                    for (String symptom : symptomArray) {
+                        String trimmedSymptom = symptom.trim();
+                        if (!trimmedSymptom.isEmpty()) {
+                            dService.insertDiseaseSymptom(diseaseName, trimmedSymptom);
+                        }
+                    }
+                }
+
                 response.put("success", true);
                 response.put("message", "질환이 수정되었습니다.");
             } else {

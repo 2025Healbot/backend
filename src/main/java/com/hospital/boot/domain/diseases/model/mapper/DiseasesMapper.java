@@ -38,4 +38,14 @@ public interface DiseasesMapper {
     int deleteDisease(int diseaseNo);
 
     Diseases findByDiseaseNo(int diseaseNo);
+
+    // Disease Departments
+    int insertDiseaseDepartment(@Param("diseaseName") String diseaseName, @Param("departmentName") String departmentName);
+
+    int deleteDiseaseDepartments(@Param("diseaseName") String diseaseName);
+
+    // Disease Symptoms
+    int insertDiseaseSymptom(@Param("diseaseName") String diseaseName, @Param("symptomName") String symptomName);
+
+    int deleteDiseaseSymptoms(@Param("diseaseName") String diseaseName);
 }

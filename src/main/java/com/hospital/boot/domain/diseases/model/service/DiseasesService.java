@@ -35,4 +35,13 @@ public interface DiseasesService {
     int deleteDisease(int diseaseNo);
 
     Diseases findByDiseaseNo(int diseaseNo);
+
+    // Disease Departments & Symptoms
+    int insertDiseaseDepartment(String diseaseName, String departmentName);
+
+    int deleteDiseaseDepartments(String diseaseName);
+
+    int insertDiseaseSymptom(String diseaseName, String symptomName);
+
+    int deleteDiseaseSymptoms(String diseaseName);
 }
