@@ -70,6 +70,28 @@ public class ReviewServiceImpl implements ReviewService {
 	}
 	
 	@Override
+	public List<Review> getMyReviews(String memberId, String sort, String rating) {
+	    Integer scoreFilter = null;
+	    if (rating != null && !"all".equalsIgnoreCase(rating)) {
+	        try {
+	            scoreFilter = Integer.parseInt(rating);
+	        } catch (NumberFormatException ignored) {
+	        }
+	    }
+	    return rMapper.findMyReviews(memberId, sort, scoreFilter);
+	}
+
+	@Override
+	public int deleteReview(String reviewId, String memberId) {
+	    return rMapper.deleteReview(reviewId, memberId);
+	}
+
+	@Override
+	public int getMyReviewCount(String memberId) {
+	    return rMapper.countReviewsByMember(memberId);
+	}
+
+	@Override
     public List<HospitalSearchDto> searchHospitals(String keyword) {
         // 키워드 null 방어
         if (keyword == null) {

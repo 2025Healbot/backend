@@ -21,6 +21,19 @@ public interface ReviewMapper {
     List<Review> findAllReviews(@Param("sort") String sort,
             @Param("scoreFilter") Integer scoreFilter);
 
+    List<Review> findMyReviews(
+            @Param("memberId") String memberId,
+            @Param("sort") String sort,
+            @Param("scoreFilter") Integer scoreFilter
+    );
+
+    int deleteReview(
+            @Param("reviewId") String reviewId,
+            @Param("memberId") String memberId
+    );
+
+    int countReviewsByMember(@Param("memberId") String memberId);
+
     Double getAvgScore(@Param("hospitalId") String hospitalId);
 
     int getTotalCount(@Param("hospitalId") String hospitalId);
