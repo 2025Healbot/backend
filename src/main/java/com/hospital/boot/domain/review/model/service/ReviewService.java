@@ -51,6 +51,11 @@ public interface ReviewService {
     int deleteReview(String reviewId, String memberId);
 
 	/**
+     * 리뷰 삭제 (관리자용 - 본인 확인 없음)
+     */
+    int deleteReviewByAdmin(String reviewId);
+
+	/**
      * 내가 쓴 리뷰 개수
      */
     int getMyReviewCount(String memberId);
