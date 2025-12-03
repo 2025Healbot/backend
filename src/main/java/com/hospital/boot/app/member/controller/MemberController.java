@@ -46,8 +46,9 @@ public class MemberController {
             response.setSocialId(socialId);
 
             if (member != null) {
-                // 로그인 성공 시 세션에 memberId 저장
+                // 로그인 성공 시 세션에 memberId, adminYn 저장
                 session.setAttribute("memberId", member.getMemberId());
+                session.setAttribute("adminYn", member.getAdminYn() != null ? member.getAdminYn() : "N");
                 response.setSuccess(1);
 
                 // 회원 접속 로그 저장 (관리자가 아니면)
@@ -97,8 +98,9 @@ public class MemberController {
             LoginResponse response = new LoginResponse();
 
             if (member != null) {
-                // 로그인 성공 시 세션에 memberId 저장
+                // 로그인 성공 시 세션에 memberId, adminYn 저장
                 session.setAttribute("memberId", member.getMemberId());
+                session.setAttribute("adminYn", member.getAdminYn() != null ? member.getAdminYn() : "N");
                 response.setSuccess(1);
 
                 // 회원 접속 로그 저장 (관리자가 아니면)
@@ -125,14 +127,16 @@ public class MemberController {
             boolean loggedIn = (memberId != null);
 
             String adminYn = "N"; // 기본값
+            String userName = null;
             if (loggedIn) {
                 try {
-                    // 로그인이 되어있으면 DB에서 회원 정보를 조회하여 adminYn 가져오기
+                    // 로그인이 되어있으면 DB에서 회원 정보를 조회하여 adminYn, userName 가져오기
                     Member member = mService.findByMemberIdAny(memberId);
                     if (member != null) {
                         if (member.getAdminYn() != null) {
                             adminYn = member.getAdminYn();
                         }
+                        userName = member.getUserName();
                     }
                 } catch (Exception e) {
                     // DB 조회 실패 시 기본값 사용
@@ -142,11 +146,13 @@ public class MemberController {
 
             String finalAdminYn = adminYn;
             String finalMemberId = memberId;
-            
+            String finalUserName = userName;
+
             return ResponseEntity.ok(new java.util.HashMap<String, Object>() {{
                 put("loggedIn", loggedIn);
                 put("admin_YN", finalAdminYn);
                 put("memberId", finalMemberId);
+                put("userName", finalUserName);
             }});
         } catch (Exception e) {
             e.printStackTrace();

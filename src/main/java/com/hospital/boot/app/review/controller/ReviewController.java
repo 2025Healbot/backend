@@ -114,4 +114,127 @@ public class ReviewController {
         List<HospitalSearchDto> list = rService.searchHospitals(keyword);
         return ResponseEntity.ok(list);
     }
+
+    /**
+     * 내가 쓴 리뷰만 조회
+     * GET /api/reviews/my?sort=latest&rating=all
+     */
+    @GetMapping("/my")
+    public ResponseEntity<?> getMyReviews(
+            @RequestParam(defaultValue = "latest") String sort,
+            @RequestParam(defaultValue = "all") String rating,
+            HttpSession session
+    ) {
+        try {
+            // 로그인 체크
+            String memberId = (String) session.getAttribute("memberId");
+            if (memberId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new CommonResponse(false, "로그인이 필요합니다."));
+            }
+
+            List<Review> list = rService.getMyReviews(memberId, sort, rating);
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonResponse(false, "리뷰 조회 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 리뷰 삭제
+     * DELETE /api/reviews/{reviewId}
+     */
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<?> deleteReview(
+            @PathVariable String reviewId,
+            HttpSession session
+    ) {
+        try {
+            // 로그인 체크
+            String memberId = (String) session.getAttribute("memberId");
+            if (memberId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new CommonResponse(false, "로그인이 필요합니다."));
+            }
+
+            // TODO: 본인의 리뷰인지 확인 후 삭제
+            int result = rService.deleteReview(reviewId, memberId);
+            if (result > 0) {
+                return ResponseEntity.ok(new CommonResponse(true, "리뷰가 삭제되었습니다."));
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new CommonResponse(false, "본인의 리뷰만 삭제할 수 있습니다."));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonResponse(false, "리뷰 삭제 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 내가 쓴 리뷰 개수
+     * GET /api/reviews/my-count
+     */
+    @GetMapping("/my-count")
+    public ResponseEntity<?> getMyReviewCount(HttpSession session) {
+        try {
+            String memberId = (String) session.getAttribute("memberId");
+            if (memberId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new CommonResponse(false, "로그인이 필요합니다."));
+            }
+
+            int count = rService.getMyReviewCount(memberId);
+            return ResponseEntity.ok(java.util.Map.of(
+                    "success", true,
+                    "count", count
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonResponse(false, "개수 조회 중 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 리뷰 삭제 (관리자용)
+     * DELETE /api/reviews/admin/{reviewId}
+     */
+    @DeleteMapping("/admin/{reviewId}")
+    public ResponseEntity<?> deleteReviewByAdmin(
+            @PathVariable String reviewId,
+            HttpSession session
+    ) {
+        try {
+            // 로그인 체크
+            String memberId = (String) session.getAttribute("memberId");
+            if (memberId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new CommonResponse(false, "로그인이 필요합니다."));
+            }
+
+            // 관리자 권한 체크
+            String adminYn = (String) session.getAttribute("adminYn");
+            if (!"Y".equals(adminYn)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new CommonResponse(false, "관리자 권한이 필요합니다."));
+            }
+
+            // 관리자는 본인 확인 없이 삭제 가능
+            int result = rService.deleteReviewByAdmin(reviewId);
+            if (result > 0) {
+                return ResponseEntity.ok(new CommonResponse(true, "리뷰가 삭제되었습니다."));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new CommonResponse(false, "리뷰를 찾을 수 없습니다."));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonResponse(false, "리뷰 삭제 중 오류가 발생했습니다."));
+        }
+    }
 }
