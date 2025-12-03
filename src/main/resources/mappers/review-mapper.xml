@@ -77,7 +77,52 @@
             </otherwise>
         </choose>
     </select>
-    
+
+    <!-- ✅ 내가 쓴 리뷰만 조회 -->
+    <select id="findMyReviews" resultMap="reviewResultMap">
+        SELECT
+            r.REVIEW_ID,
+            r.HOSPITAL_ID,
+            r.MEMBER_ID,
+            r.SCORE,
+            r.CONTENT,
+            r.CREATED_AT,
+            m.USER_NAME,
+            h.HOSPITAL_NAME
+        FROM REVIEWS r
+        JOIN MEMBER   m ON r.MEMBER_ID   = m.MEMBER_ID
+        JOIN HOSPITALS h ON r.HOSPITAL_ID = h.HOSPITAL_ID
+        WHERE r.MEMBER_ID = #{memberId}
+        <if test="scoreFilter != null">
+            AND r.SCORE = #{scoreFilter}
+        </if>
+        <choose>
+            <when test="sort == 'high'">
+                ORDER BY r.SCORE DESC, r.CREATED_AT DESC
+            </when>
+            <when test="sort == 'low'">
+                ORDER BY r.SCORE ASC, r.CREATED_AT DESC
+            </when>
+            <otherwise>
+                ORDER BY r.CREATED_AT DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 리뷰 삭제 (본인 확인) -->
+    <delete id="deleteReview">
+        DELETE FROM REVIEWS
+        WHERE REVIEW_ID = #{reviewId}
+          AND MEMBER_ID = #{memberId}
+    </delete>
+
+    <!-- 내가 쓴 리뷰 개수 -->
+    <select id="countReviewsByMember" resultType="int">
+        SELECT COUNT(*)
+        FROM REVIEWS
+        WHERE MEMBER_ID = #{memberId}
+    </select>
+
     <!-- DTO 매핑 -->
 	<resultMap id="hospitalSearchResultMap"
 	           type="com.hospital.boot.app.review.dto.HospitalSearchDto">

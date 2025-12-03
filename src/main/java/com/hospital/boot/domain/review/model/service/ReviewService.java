@@ -39,7 +39,22 @@ public interface ReviewService {
     int insertReview(Review review);
 
 	ReviewListResponse getAllReviews(String sort, String rating);
-	
+
+	/**
+     * 내가 쓴 리뷰만 조회
+     */
+    List<Review> getMyReviews(String memberId, String sort, String rating);
+
+	/**
+     * 리뷰 삭제 (본인 확인)
+     */
+    int deleteReview(String reviewId, String memberId);
+
+	/**
+     * 내가 쓴 리뷰 개수
+     */
+    int getMyReviewCount(String memberId);
+
 	/**
      * 병원명 키워드로 검색
      */

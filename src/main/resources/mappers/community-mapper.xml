@@ -9,7 +9,7 @@
         SELECT
             p.POST_ID AS postId,
             p.MEMBER_ID AS memberId,
-            m.USER_NAME AS author,
+            m.USER_NAME AS userName,
             p.CATEGORY AS category,
             p.TITLE AS title,
             p.CONTENT AS content,
@@ -39,7 +39,7 @@
         SELECT
             p.POST_ID AS postId,
             p.MEMBER_ID AS memberId,
-            m.USER_NAME AS author,
+            m.USER_NAME AS userName,
             p.CATEGORY AS category,
             p.TITLE AS title,
             p.CONTENT AS content,
