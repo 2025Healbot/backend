@@ -12,7 +12,7 @@
         MEMBER_ID, LOGIN_TYPE, SOCIAL_ID, PASSWORD, USER_NAME, EMAIL,
         PHONE, BORN_DATE, GENDER, ADDRESS, CREATED_AT,ADMIN_YN) VALUES (
         #{memberId}, #{loginType}, #{socialId, jdbcType=VARCHAR}, #{password, jdbcType=VARCHAR},
-        #{userName}, #{email}, #{phone}, #{bornDate},
+        #{userName}, #{email}, #{phone}, TO_DATE(#{bornDate}, 'YYYY-MM-DD'),
         #{gender}, #{address}, DEFAULT, DEFAULT)
     </insert>
 
