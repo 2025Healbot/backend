@@ -46,8 +46,9 @@ public class MemberController {
             response.setSocialId(socialId);
 
             if (member != null) {
-                // 로그인 성공 시 세션에 memberId 저장
+                // 로그인 성공 시 세션에 memberId, adminYn 저장
                 session.setAttribute("memberId", member.getMemberId());
+                session.setAttribute("adminYn", member.getAdminYn() != null ? member.getAdminYn() : "N");
                 response.setSuccess(1);
 
                 // 회원 접속 로그 저장 (관리자가 아니면)
@@ -97,8 +98,9 @@ public class MemberController {
             LoginResponse response = new LoginResponse();
 
             if (member != null) {
-                // 로그인 성공 시 세션에 memberId 저장
+                // 로그인 성공 시 세션에 memberId, adminYn 저장
                 session.setAttribute("memberId", member.getMemberId());
+                session.setAttribute("adminYn", member.getAdminYn() != null ? member.getAdminYn() : "N");
                 response.setSuccess(1);
 
                 // 회원 접속 로그 저장 (관리자가 아니면)

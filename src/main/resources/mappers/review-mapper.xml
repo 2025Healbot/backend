@@ -116,6 +116,12 @@
           AND MEMBER_ID = #{memberId}
     </delete>
 
+    <!-- 리뷰 삭제 (관리자용 - 본인 확인 없음) -->
+    <delete id="deleteReviewByAdmin">
+        DELETE FROM REVIEWS
+        WHERE REVIEW_ID = #{reviewId}
+    </delete>
+
     <!-- 내가 쓴 리뷰 개수 -->
     <select id="countReviewsByMember" resultType="int">
         SELECT COUNT(*)

@@ -32,6 +32,8 @@ public interface ReviewMapper {
             @Param("memberId") String memberId
     );
 
+    int deleteReviewByAdmin(@Param("reviewId") String reviewId);
+
     int countReviewsByMember(@Param("memberId") String memberId);
 
     Double getAvgScore(@Param("hospitalId") String hospitalId);

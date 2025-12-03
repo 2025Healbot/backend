@@ -87,6 +87,11 @@ public class ReviewServiceImpl implements ReviewService {
 	}
 
 	@Override
+	public int deleteReviewByAdmin(String reviewId) {
+	    return rMapper.deleteReviewByAdmin(reviewId);
+	}
+
+	@Override
 	public int getMyReviewCount(String memberId) {
 	    return rMapper.countReviewsByMember(memberId);
 	}
