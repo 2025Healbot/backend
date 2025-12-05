@@ -14,7 +14,9 @@
             p.TITLE AS title,
             p.CONTENT AS content,
             p.VIEWS AS views,
-            p.CREATED_AT AS createdAt
+            p.CREATED_AT AS createdAt,
+            (SELECT COUNT(*) FROM COMMUNITY_COMMENT cc
+             WHERE cc.POST_ID = p.POST_ID AND cc.STATUS = 'ACTIVE') AS commentCount
         FROM COMMUNITY_POST p
         JOIN MEMBER m ON p.MEMBER_ID = m.MEMBER_ID
         WHERE p.STATUS = 'ACTIVE'
@@ -162,11 +164,17 @@
             CASE
                 WHEN r.TARGET_TYPE = 'POST' THEN p.MEMBER_ID
                 WHEN r.TARGET_TYPE = 'COMMENT' THEN c.MEMBER_ID
-            END AS targetAuthorId
+            END AS targetAuthorId,
+            CASE
+                WHEN r.TARGET_TYPE = 'POST' THEN mp.USER_NAME
+                WHEN r.TARGET_TYPE = 'COMMENT' THEN mc.USER_NAME
+            END AS targetAuthorName
         FROM COMMUNITY_REPORT r
         LEFT JOIN MEMBER m ON r.REPORTER_ID = m.MEMBER_ID
         LEFT JOIN COMMUNITY_POST p ON r.POST_ID = p.POST_ID
+        LEFT JOIN MEMBER mp ON p.MEMBER_ID = mp.MEMBER_ID
         LEFT JOIN COMMUNITY_COMMENT c ON r.COMMENT_ID = c.COMMENT_ID
+        LEFT JOIN MEMBER mc ON c.MEMBER_ID = mc.MEMBER_ID
         <where>
             <if test="status != null and status != ''">
                 AND r.STATUS = #{status}
@@ -198,11 +206,17 @@
             CASE
                 WHEN r.TARGET_TYPE = 'POST' THEN p.MEMBER_ID
                 WHEN r.TARGET_TYPE = 'COMMENT' THEN c.MEMBER_ID
-            END AS targetAuthorId
+            END AS targetAuthorId,
+            CASE
+                WHEN r.TARGET_TYPE = 'POST' THEN mp.USER_NAME
+                WHEN r.TARGET_TYPE = 'COMMENT' THEN mc.USER_NAME
+            END AS targetAuthorName
         FROM COMMUNITY_REPORT r
         LEFT JOIN MEMBER m ON r.REPORTER_ID = m.MEMBER_ID
         LEFT JOIN COMMUNITY_POST p ON r.POST_ID = p.POST_ID
+        LEFT JOIN MEMBER mp ON p.MEMBER_ID = mp.MEMBER_ID
         LEFT JOIN COMMUNITY_COMMENT c ON r.COMMENT_ID = c.COMMENT_ID
+        LEFT JOIN MEMBER mc ON c.MEMBER_ID = mc.MEMBER_ID
         WHERE r.REPORT_ID = #{reportId}
     </select>
 
@@ -337,5 +351,35 @@
 	              (r.TARGET_TYPE = 'POST'    AND p.MEMBER_ID = #{memberId})
 	           OR (r.TARGET_TYPE = 'COMMENT' AND c.MEMBER_ID = #{memberId})
 	        )
+	</select>
+
+	<!-- 게시글 작성자 ID 조회 -->
+	<select id="selectPostAuthorId" parameterType="long" resultType="string">
+	    SELECT MEMBER_ID
+	    FROM COMMUNITY_POST
+	    WHERE POST_ID = #{postId}
+	</select>
+
+	<!-- 댓글 작성자 ID 조회 -->
+	<select id="selectCommentAuthorId" parameterType="long" resultType="string">
+	    SELECT MEMBER_ID
+	    FROM COMMUNITY_COMMENT
+	    WHERE COMMENT_ID = #{commentId}
+	</select>
+
+	<!-- 게시글 신고 중복 확인 -->
+	<select id="checkPostReportExists" resultType="int">
+	    SELECT COUNT(*)
+	    FROM COMMUNITY_REPORT
+	    WHERE POST_ID = #{postId}
+	      AND REPORTER_ID = #{reporterId}
+	</select>
+
+	<!-- 댓글 신고 중복 확인 -->
+	<select id="checkCommentReportExists" resultType="int">
+	    SELECT COUNT(*)
+	    FROM COMMUNITY_REPORT
+	    WHERE COMMENT_ID = #{commentId}
+	      AND REPORTER_ID = #{reporterId}
 	</select>
 </mapper>

@@ -202,11 +202,18 @@ public class CommunityController {
             ));
         }
 
-        cService.reportPost(memberId, postId, req);
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "신고가 접수되었습니다."
-        ));
+        try {
+            cService.reportPost(memberId, postId, req);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "신고가 접수되었습니다."
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
     }
 
     // 🔴 댓글 신고
@@ -224,11 +231,18 @@ public class CommunityController {
             ));
         }
 
-        cService.reportComment(memberId, commentId, req);
-        return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "신고가 접수되었습니다."
-        ));
+        try {
+            cService.reportComment(memberId, commentId, req);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "신고가 접수되었습니다."
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
     }
 
     // =======================

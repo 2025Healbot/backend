@@ -71,4 +71,20 @@ public interface CommunityMapper {
 
     /** 내가 받은 제재 개수 */
     int selectMySanctionCount(@Param("memberId") String memberId);
+
+    /** 게시글 작성자 ID 조회 */
+    String selectPostAuthorId(@Param("postId") Long postId);
+
+    /** 댓글 작성자 ID 조회 */
+    String selectCommentAuthorId(@Param("commentId") Long commentId);
+
+    /** 게시글 신고 중복 확인 */
+    int checkPostReportExists(
+            @Param("postId") Long postId,
+            @Param("reporterId") String reporterId);
+
+    /** 댓글 신고 중복 확인 */
+    int checkCommentReportExists(
+            @Param("commentId") Long commentId,
+            @Param("reporterId") String reporterId);
 }

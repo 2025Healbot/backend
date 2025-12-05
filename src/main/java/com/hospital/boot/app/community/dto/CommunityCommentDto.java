@@ -11,6 +11,7 @@ public class CommunityCommentDto {
     private Long commentId;
     private Long postId;
     private String memberId;
+    private String author;      // 작성자 이름
     private String content;
     private String createdAt;   // TO_CHAR
 }
