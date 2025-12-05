@@ -27,4 +27,5 @@ public class CommunityReportDto {
     private String commentContent;  // 신고된 댓글 내용
     private String commentStatus;   // 댓글 상태 (ACTIVE, HIDDEN)
     private String targetAuthorId;  // 신고 대상 작성자 ID
+    private String targetAuthorName; // 신고 대상 작성자 이름
 }

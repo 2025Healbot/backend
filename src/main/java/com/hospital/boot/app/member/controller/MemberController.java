@@ -51,7 +51,7 @@ public class MemberController {
                 session.setAttribute("adminYn", member.getAdminYn() != null ? member.getAdminYn() : "N");
                 response.setSuccess(1);
 
-                // 회원 접속 로그 저장 (관리자가 아니면)
+                // 회원 접속 로그 저장 (관리자 제외)
                 if (!"Y".equals(member.getAdminYn())) {
                     saveAccessLog(member.getMemberId(), request);
                 }

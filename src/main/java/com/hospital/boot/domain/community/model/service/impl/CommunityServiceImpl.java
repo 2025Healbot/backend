@@ -98,6 +98,22 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
     @Transactional
     public void reportPost(String reporterId, Long postId, CommunityReportRequest req) {
+        // 1. 게시글 작성자 확인 - 본인 신고 방지
+        String authorId = cMapper.selectPostAuthorId(postId);
+        if (authorId == null) {
+            throw new IllegalArgumentException("존재하지 않는 게시글입니다.");
+        }
+        if (authorId.equals(reporterId)) {
+            throw new IllegalArgumentException("본인의 게시글은 신고할 수 없습니다.");
+        }
+
+        // 2. 중복 신고 확인
+        int exists = cMapper.checkPostReportExists(postId, reporterId);
+        if (exists > 0) {
+            throw new IllegalArgumentException("이미 신고한 게시글입니다.");
+        }
+
+        // 3. 신고 등록
         CommunityReport r = new CommunityReport();
         r.setTargetType("POST");
         r.setPostId(postId);
@@ -113,6 +129,22 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	@Transactional
 	public void reportComment(String reporterId, Long commentId, CommunityReportRequest req) {
+		// 1. 댓글 작성자 확인 - 본인 신고 방지
+		String authorId = cMapper.selectCommentAuthorId(commentId);
+		if (authorId == null) {
+			throw new IllegalArgumentException("존재하지 않는 댓글입니다.");
+		}
+		if (authorId.equals(reporterId)) {
+			throw new IllegalArgumentException("본인의 댓글은 신고할 수 없습니다.");
+		}
+
+		// 2. 중복 신고 확인
+		int exists = cMapper.checkCommentReportExists(commentId, reporterId);
+		if (exists > 0) {
+			throw new IllegalArgumentException("이미 신고한 댓글입니다.");
+		}
+
+		// 3. 신고 등록
 		CommunityReport r = new CommunityReport();
 		r.setTargetType("COMMENT");
 		r.setPostId(null);
