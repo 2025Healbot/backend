@@ -61,10 +61,7 @@ public class ReviewController {
      */
     @PostMapping
     public ResponseEntity<?> createReview(
-            @RequestParam("hospitalId") String hospitalId,
-            @RequestParam("score") int score,
-            @RequestParam("content") String content,
-            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            @RequestBody Review review,
             HttpSession session
     ) {
         try {
@@ -74,25 +71,15 @@ public class ReviewController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new CommonResponse(false, "로그인이 필요합니다."));
             }
-
-            // 리뷰 VO 세팅
-            Review review = new Review();
-            review.setHospitalId(hospitalId);
             review.setMemberId(memberId);
-            review.setScore(score);
-            review.setContent(content);
-
+            System.out.println("받은 리뷰 데이터: " + review);
             int result = rService.insertReview(review);
             if (result <= 0) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(new CommonResponse(false, "리뷰 등록에 실패했습니다."));
             }
-
-            // 이미지(files)는 나중에 별도 테이블/저장소에 붙이면 됨. 지금은 무시하거나 TODO 처리.
-            // TODO: files 처리 로직 (파일 저장 + REVIEW_IMAGES 테이블 등)
-
+            // TODO: files 처리 로직 (파일 저장, DB에 파일 정보 저장 등)
             return ResponseEntity.ok(new CommonResponse(true, "리뷰가 등록되었습니다."));
-
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
